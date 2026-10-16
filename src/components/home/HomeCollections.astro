@@ -5,7 +5,9 @@
 //
 // Transitions: the top edge continues the hero's ivory curve, which meets the bottom of the
 // first screen at 28.2% of the width; from there the dark ground sweeps down under the cake and
-// off the right edge. The bottom edge waves into the footer.
+// off the right edge. The bottom edge reflects that sweep: the footer's dark ground rises off
+// the right edge to the same 16vw depth and eases in flat from the left, so the ivory panel is
+// framed by matching curves with no corner where the curve meets the straight edge.
 
 import Button from "../ui/Button.astro";
 import CollectionDoor from "./CollectionDoor.astro";
@@ -74,16 +76,17 @@ import { homeCollections } from "../../data/home-collections";
     </ul>
   </div>
 
-  <!-- Wave into the footer. -->
-  <svg class="collections__wave" viewBox="0 0 100 12" preserveAspectRatio="none" aria-hidden="true" focusable="false">
-    <path d="M0 7.5C18 2 40 .5 60 3.6 78 6.4 90 9 100 5.2V12H0Z" />
+  <!-- Into the footer: the top lip's sweep reflected (same vw geometry), entering tangent to the
+       flat edge so there is no kink. -->
+  <svg class="collections__wave" viewBox="0 0 100 16" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+    <path d="M0 16H6C22 16 38 13.4 56 9.8 72 6.6 88 3.6 100 0V16Z" />
   </svg>
 </section>
 
 <style>
   .collections {
     --lip-h: 16vw;
-    --wave-h: 12vw;
+    --wave-h: var(--lip-h);
 
     position: relative;
     isolation: isolate;
@@ -95,7 +98,7 @@ import { homeCollections } from "../../data/home-collections";
     color: var(--color-text-on-ivory);
     color-scheme: light;
     padding-top: calc(var(--lip-h) + var(--space-6));
-    padding-bottom: calc(var(--wave-h) + var(--space-16));
+    padding-bottom: calc(var(--wave-h) + var(--space-10));
   }
 
   .collections__defs {
@@ -187,10 +190,8 @@ import { homeCollections } from "../../data/home-collections";
     margin-top: var(--space-6);
   }
 
+  /* Spacing between the tiles comes from CollectionDoor's stagger step. */
   .collections__doors {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-8);
     margin-top: var(--space-12);
   }
 </style>

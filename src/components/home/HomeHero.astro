@@ -87,6 +87,12 @@ const cake = images.heroCake;
     letter-spacing: -0.02em; /* set-width measured 2.7% wider than the reference at -0.01em */
     color: var(--color-text);
     text-wrap: initial;
+    /* Large text on narrow screens (e.g. 200% text at 320–375px): a word such as “Moments” can
+       be wider than the column. Let the headline use the right gutter first, then wrap the word
+       rather than be clipped by the stage. At normal sizes every line fits, so neither applies. */
+    margin-inline-end: calc(var(--gutter) * -1);
+    overflow-wrap: anywhere;
+    hyphens: auto;
   }
 
   /* Soft dark halo: near-invisible at normal size, keeps contrast wherever enlarged text flows

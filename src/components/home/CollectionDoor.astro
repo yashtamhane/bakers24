@@ -43,11 +43,20 @@ const titleId = `door-${id}-title`;
 </li>
 
 <style>
+  /* Staggered rhythm: each tile steps across by the space it leaves free in the column and down
+     by the same amount (vertical margin percentages resolve against the column width, like the
+     width), so the staircase keeps one angle at every width. Tiles are never narrower than 16rem,
+     so at large text sizes they widen to the full column; the step then falls back to a 1.5rem
+     gap so tiles never touch. */
   .door {
+    --door-w: min(100%, max(82%, 16rem));
+
     position: relative;
-    /* ~80% of the column, alternating sides; never narrower than 16rem, so at large text sizes
-       the tile widens to the full column instead of crushing the title. */
-    width: min(100%, max(80%, 16rem));
+    width: var(--door-w);
+  }
+
+  .door + .door {
+    margin-top: max(calc(100% - var(--door-w)), var(--space-6));
   }
 
   .door:nth-child(even) {
@@ -79,6 +88,11 @@ const titleId = `door-${id}-title`;
     box-shadow: var(--shadow-card);
   }
 
+  /* The centre tile is the tallest, as in the reference's trio. */
+  .door:nth-child(2) .door__frame {
+    aspect-ratio: 3 / 4;
+  }
+
   .door__img {
     position: absolute;
     inset: 0 0 auto;
@@ -94,8 +108,10 @@ const titleId = `door-${id}-title`;
   .door__body {
     position: relative;
     display: flex;
+    /* When text is enlarged and the title needs the room, the arrow wraps below it (kept at the
+       right) instead of squeezing the title into a letter-wide column. */
+    flex-wrap: wrap;
     align-items: flex-end;
-    justify-content: space-between;
     gap: var(--space-3);
     padding: clamp(1rem, 7%, 1.5rem);
     padding-top: var(--space-16);
@@ -104,7 +120,9 @@ const titleId = `door-${id}-title`;
   }
 
   .door__title {
-    min-width: 0;
+    /* Never narrower than its longest word, unless that word is wider than the whole tile. */
+    flex: 1 0 auto;
+    max-width: 100%;
     font-size: 1.75rem;
     line-height: 1.08;
     color: var(--color-text);
@@ -120,6 +138,7 @@ const titleId = `door-${id}-title`;
   /* The reference's ringed arrow: decorative here, because the whole tile is the link. */
   .door__arrow {
     flex: none;
+    margin-inline-start: auto;
     display: inline-grid;
     place-items: center;
     width: 2.5rem;
@@ -151,8 +170,12 @@ const titleId = `door-${id}-title`;
      stays the collection title; pointer-events off so taps on it still reach the tile. */
   .door__label {
     position: absolute;
-    top: 22%; /* inside every arch shape, still over the photograph */
-    right: var(--space-4);
+    /* Top centre: inside every arch shape, over the photograph, and above the title's reserved
+       top padding even when enlarged text makes the tile grow. */
+    top: max(1.5rem, 7%);
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
     padding: 0.125rem 0.5rem;
     border-radius: var(--radius-pill);
     background: rgb(18 10 6 / 0.82);

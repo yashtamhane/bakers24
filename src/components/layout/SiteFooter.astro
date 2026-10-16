@@ -3,19 +3,24 @@
 // Love”, the identity, where to find the shop, how to reach it, and the concept-demonstration
 // notice CONTENT.md requires. Facts come from src/data/business.ts; unconfirmed details
 // (hours, email, delivery, map pin) are intentionally absent.
+//
+// Composition: a centred signature (motto, champagne rule, logo, echoing the header's centred
+// lockup) is the one display moment; the contact details sit below it as a quieter block; the
+// disclosure closes the page behind a hairline. Tight spacing inside groups, generous between.
 
 import Logo from "../brand/Logo.astro";
-import Icon from "../ui/Icon.astro";
 import { business, conceptNotice } from "../../data/business";
 ---
 
 <footer class="site-footer">
-  <p class="site-footer__motto">
-    <span class="site-footer__motto-line site-footer__motto-line--ruled">A Little Cake</span>
-    <span class="site-footer__motto-line">A Lot of Love</span>
-  </p>
-
-  <Logo class="site-footer__logo" />
+  <div class="site-footer__signature">
+    <p class="site-footer__motto">
+      <span class="site-footer__motto-line">A Little Cake</span>
+      <span class="site-footer__motto-line">A Lot of Love</span>
+    </p>
+    <span class="site-footer__rule" aria-hidden="true"></span>
+    <Logo class="site-footer__logo" />
+  </div>
 
   <address class="site-footer__contact">
     <div class="site-footer__group">
@@ -30,13 +35,14 @@ import { business, conceptNotice } from "../../data/business";
       <ul class="site-footer__links" role="list">
         <li>
           <a class="site-footer__link" href={business.whatsapp.href}>
-            <Icon name="whatsapp" size={20} />
-            <span><span class="visually-hidden">WhatsApp </span>{business.whatsapp.display}</span>
+            <span class="site-footer__link-label">WhatsApp</span>
+            <span class="site-footer__link-value">{business.whatsapp.display}</span>
           </a>
         </li>
         <li>
           <a class="site-footer__link" href={business.instagram.href}>
-            <span><span class="visually-hidden">Instagram </span>{business.instagram.handle}</span>
+            <span class="site-footer__link-label">Instagram</span>
+            <span class="site-footer__link-value">{business.instagram.handle}</span>
           </a>
         </li>
       </ul>
@@ -51,61 +57,55 @@ import { business, conceptNotice } from "../../data/business";
     position: relative;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-10);
-    padding: var(--space-10) var(--gutter) calc(var(--space-12) + env(safe-area-inset-bottom, 0px));
+    align-items: center;
+    gap: var(--space-12);
+    padding: var(--space-10) var(--gutter) calc(var(--space-10) + env(safe-area-inset-bottom, 0px));
+    text-align: center;
+    /* Faint amber light behind the signature (kept clear of the top edge so it never seams with
+       the ivory section's curve) and a black-cherry wash in the lower corner. */
     background:
-      radial-gradient(90% 45% at 100% 100%, rgb(81 30 41 / 0.45), transparent 70%),
+      radial-gradient(70% 22% at 50% 30%, rgb(104 56 28 / 0.22), transparent 70%),
+      radial-gradient(90% 40% at 100% 100%, rgb(81 30 41 / 0.45), transparent 70%),
       var(--color-bg);
     color: var(--color-text);
   }
 
-  /* Reference: italic display serif, a fine rule after the first line, second line set in. */
+  .site-footer__signature {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
   .site-footer__motto {
     display: flex;
     flex-direction: column;
     font-family: var(--font-display);
-    font-size: 1.875rem;
+    font-size: 2rem;
     font-style: italic;
-    line-height: 1.2;
+    line-height: 1.15;
     color: var(--color-text);
   }
 
-  .site-footer__motto-line--ruled {
-    display: flex;
-    align-items: center;
-    gap: var(--space-4);
-  }
-
-  .site-footer__motto-line--ruled::after {
-    content: "";
-    flex: none;
+  /* The reference's fine champagne rule, here linking the motto to the signature. */
+  .site-footer__rule {
     width: 2.5rem;
     height: 1px;
+    margin-block: var(--space-6);
     background: var(--palette-champagne-300);
     opacity: 0.8;
   }
 
-  .site-footer__motto-line:last-child {
-    padding-inline-start: 0.75em;
-  }
-
-  .site-footer :global(.site-footer__logo) {
-    align-items: flex-start;
-    text-align: start;
-  }
-
   .site-footer__contact {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
-    gap: var(--space-8) var(--space-6);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-8);
     width: 100%;
     font-style: normal;
   }
 
   .site-footer__heading {
-    margin-bottom: var(--space-3);
-    letter-spacing: var(--tracking-eyebrow);
+    margin-bottom: var(--space-2);
   }
 
   .site-footer__address {
@@ -121,15 +121,28 @@ import { business, conceptNotice } from "../../data/business";
   .site-footer__links {
     display: flex;
     flex-direction: column;
+    align-items: center;
   }
 
   .site-footer__link {
     display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: center;
+    column-gap: var(--space-2);
     min-height: var(--tap-min);
+    padding-block: var(--space-2);
     color: var(--color-text);
     font-size: var(--text-small);
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .site-footer__link-label {
+    color: var(--color-text-eyebrow);
+  }
+
+  .site-footer__link-value {
     text-decoration: underline;
     text-decoration-color: color-mix(in srgb, var(--color-accent) 60%, transparent);
     text-underline-offset: 0.3em;
@@ -137,18 +150,15 @@ import { business, conceptNotice } from "../../data/business";
     transition: text-decoration-color var(--duration-base) var(--ease-out);
   }
 
-  .site-footer__link:hover {
+  .site-footer__link:hover .site-footer__link-value {
     text-decoration-color: var(--color-accent);
   }
 
-  .site-footer__link :global(.icon) {
-    color: var(--color-accent);
-  }
-
   .site-footer__notice {
+    width: 100%;
+    max-width: 22rem;
     padding-top: var(--space-6);
     border-top: 1px solid var(--color-hairline);
-    width: 100%;
     color: var(--color-text-eyebrow);
     font-size: 0.8125rem;
     line-height: 1.5;

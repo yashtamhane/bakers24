@@ -206,6 +206,48 @@ test.describe("homepage first screen (M1)", () => {
     expect(overflow).toBeLessThanOrEqual(0);
   });
 
+  // Every line of the headline, measured from its glyph boxes (the line spans are block-level).
+  const headlineInk = (page: Page) =>
+    page.locator(".hero__title").evaluate((h) => {
+      const r = document.createRange();
+      r.selectNodeContents(h);
+      const rects = [...r.getClientRects()].filter((b) => b.width > 0);
+      return { left: Math.min(...rects.map((b) => b.left)), right: Math.max(...rects.map((b) => b.right)), height: h.getBoundingClientRect().height, font: parseFloat(getComputedStyle(h).fontSize) };
+    });
+
+  for (const size of [
+    { width: 320, height: 568 },
+    { width: 375, height: 667 },
+    { width: 375, height: 812 },
+    { width: 390, height: 844 },
+    { width: 430, height: 932 },
+  ]) {
+    test(`headline is never clipped at 200% text (${size.width}×${size.height})`, async ({ page }) => {
+      await page.emulateMedia({ reducedMotion: "reduce" }); // resting positions, not the entrance
+      await page.setViewportSize(size);
+      await open(page);
+      await page.addStyleTag({ content: "html { font-size: 200% !important; }" });
+      // The stage clips overflow, so scrollWidth alone cannot see a clipped word: measure the ink.
+      const ink = await headlineInk(page);
+      expect(ink.left, "headline starts inside the viewport").toBeGreaterThanOrEqual(0);
+      expect(ink.right, "headline ends inside the viewport").toBeLessThanOrEqual(size.width);
+      const lead = await box(page.locator(".hero__lead"));
+      const cta = await box(page.getByRole("link", { name: "Explore Cakes" }));
+      const cake = await box(page.locator(".hero__cake"));
+      expect(lead.y + lead.height, "description stays above the cake").toBeLessThanOrEqual(cake.y);
+      expect(cta.y + cta.height - cake.y, "button overlap with cake").toBeLessThanOrEqual(16);
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+      expect(overflow).toBeLessThanOrEqual(0);
+    });
+
+    test(`headline keeps its three approved lines at normal text size (${size.width}×${size.height})`, async ({ page }) => {
+      await page.setViewportSize(size);
+      await open(page);
+      const ink = await headlineInk(page);
+      expect(Math.round(ink.height / (ink.font * 0.99)), "Moments / Taste Better / Here.").toBe(3);
+    });
+  }
+
   test("honours reduced motion", async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await open(page);
@@ -365,7 +407,8 @@ test.describe("homepage below the first screen (M2)", () => {
       { selector: ".door--birthday .door__label", min: 4.5, what: "temporary-image label" },
       { selector: ".site-footer__motto", min: 4.5, what: "footer motto" },
       { selector: ".site-footer__address", min: 4.5, what: "footer address" },
-      { selector: ".site-footer__link", min: 4.5, what: "footer link" },
+      { selector: ".site-footer__link-value", min: 4.5, what: "footer link" },
+      { selector: ".site-footer__link-label", min: 4.5, what: "footer link label" },
       { selector: ".site-footer__notice", min: 4.5, what: "concept notice" },
     ];
     for (const c of checks) {
@@ -394,8 +437,81 @@ test.describe("homepage below the first screen (M2)", () => {
       for (let i = 1; i < doors.length; i++) expect(doors[i]!.y).toBeGreaterThanOrEqual(doors[i - 1]!.y + doors[i - 1]!.height);
       expect(doors[1]!.x + doors[1]!.width).toBeGreaterThan(doors[0]!.x + doors[0]!.width);
       for (const d of doors) expect(d.height / d.width, "tall portrait tiles").toBeGreaterThanOrEqual(1.2);
+
+      // Deliberate stagger: each step down equals the step across, and the centre tile is tallest.
+      for (let i = 1; i < doors.length; i++) {
+        const across = Math.abs(doors[i]!.x - doors[i - 1]!.x);
+        const down = doors[i]!.y - (doors[i - 1]!.y + doors[i - 1]!.height);
+        const expected = Math.max(across, 24); // 1.5rem floor so tiles never touch
+        expect(Math.abs(down - expected), `step ${i}: down ${down.toFixed(1)} vs across ${across.toFixed(1)}`).toBeLessThanOrEqual(1);
+      }
+      expect(doors[1]!.height).toBeGreaterThan(doors[0]!.height);
+      expect(doors[1]!.height).toBeGreaterThan(doors[2]!.height);
+
+      // Ivory-to-footer transition: same curve depth as the top transition, and no gap or seam.
+      const lip = await box(page.locator(".collections__lip"));
+      const wave = await box(page.locator(".collections__wave"));
+      expect(Math.abs(wave.height - lip.height), "bottom curve matches top curve").toBeLessThanOrEqual(1);
+      const footer = await box(page.getByRole("contentinfo"));
+      expect(Math.abs(footer.y - (section.y + section.height)), "footer meets the section").toBeLessThanOrEqual(1);
+      expect(wave.y + wave.height, "curve reaches the footer").toBeGreaterThanOrEqual(footer.y);
+
+      // Footer reads top to bottom: motto, logo, contact details, disclosure; signature centred.
+      const order = await Promise.all(
+        [".site-footer__motto", ".site-footer__logo", ".site-footer__contact", ".site-footer__notice"].map((sel) => box(page.locator(sel))),
+      );
+      for (let i = 1; i < order.length; i++) expect(order[i]!.y).toBeGreaterThan(order[i - 1]!.y + order[i - 1]!.height - 1);
+      for (const b of order.slice(0, 2)) expect(Math.abs(b.x + b.width / 2 - size.width / 2), "signature centred").toBeLessThanOrEqual(2);
     });
   }
+
+  test("keyboard reaches every M2 link in order, each with a visible focus ring", async ({ page, browserName, isMobile }) => {
+    test.skip(browserName === "webkit" && isMobile, "Mobile WebKit does not move focus with Tab");
+    await open(page);
+    const expected = ["Explore Collection", ...DOORS.map((d) => d.name), "Baker’s 24 Pure Veg Cake Shop", "WhatsApp +91 90289 02800", "Instagram @bakers24pcmc"];
+    await page.getByRole("link", { name: "Explore Cakes" }).focus();
+    for (const name of expected) {
+      await page.keyboard.press("Tab");
+      const focused = page.locator(":focus");
+      await expect(focused).toHaveAccessibleName(name);
+      const outline = await focused.evaluate((n) => { const cs = getComputedStyle(n); return { style: cs.outlineStyle, width: parseFloat(cs.outlineWidth) }; });
+      expect(outline.style, name).not.toBe("none");
+      expect(outline.width, name).toBeGreaterThanOrEqual(2);
+    }
+  });
+
+  test("hero petal stays in its M1 box, clear of the headline", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" }); // measure the resting position, not the entrance
+    await page.setViewportSize({ width: 390, height: 844 });
+    await open(page);
+    const petal = await box(page.locator(".hero__petal"));
+    // M1 geometry: 28.7vw wide, top at 19.5% of the first screen, bleeding past the right edge.
+    expect(Math.abs(petal.width - 390 * 0.287)).toBeLessThanOrEqual(1);
+    expect(Math.abs(petal.y - 844 * 0.195)).toBeLessThanOrEqual(1);
+    expect(petal.x + petal.width).toBeGreaterThan(390);
+    // The petal's painted shape (not its rectangular box, which "Better" has always crossed) must
+    // not touch the headline text: sample the text area against the petal outline itself.
+    const touching = await page.evaluate(() => {
+      const shape = document.querySelector<SVGPathElement>("#hero-petal-clip path")!;
+      const toPetal = (shape.ownerSVGElement as SVGSVGElement).getScreenCTM()!.inverse();
+      const r = document.createRange();
+      r.selectNodeContents(document.querySelector(".hero__title")!);
+      const hits: string[] = [];
+      for (const b of r.getClientRects()) {
+        for (let x = b.left; x <= b.right; x += 2) {
+          for (let y = b.top; y <= b.bottom; y += 2) {
+            const pt = new DOMPoint(x, y).matrixTransform(toPetal);
+            if (shape.isPointInFill(pt)) hits.push(`${x.toFixed(0)},${y.toFixed(0)}`);
+          }
+        }
+      }
+      return hits;
+    });
+    expect(touching, "petal shape overlaps headline text").toEqual([]);
+    // Rendered as part of the scene: softened edge, no outline stroke.
+    expect(await page.locator(".hero__petal > g").getAttribute("filter")).toBe("url(#hero-petal-soften)");
+    expect(await page.locator(".hero__petal [stroke='#7e1230']").count()).toBe(0);
+  });
 
   for (const width of [320, 390]) {
     test(`M2 text reflows without clipping at 200% text size (${width}px)`, async ({ page }) => {
@@ -411,6 +527,10 @@ test.describe("homepage below the first screen (M2)", () => {
         const title = await box(d.locator(".door__title"));
         expect(title.x + title.width).toBeLessThanOrEqual(tile.x + tile.width);
         expect(title.y + title.height).toBeLessThanOrEqual(tile.y + tile.height);
+        // The temporary-image label never covers the title, and the arrow never squeezes it.
+        const label = await box(d.locator(".door__label"));
+        expect(label.y + label.height, "label above the title").toBeLessThanOrEqual(title.y);
+        expect(title.width, "title gets the tile's width, not a sliver").toBeGreaterThan(tile.width * 0.5);
       }
     });
   }
