@@ -1,0 +1,97 @@
+/*
+ * Type roles from the approved reference. Two families only:
+ * Libre Bodoni (display, prices, italic accents) and DM Sans (interface and body).
+ */
+
+@layer base {
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-weight: var(--weight-display);
+    letter-spacing: var(--tracking-display);
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+}
+
+@layer utilities {
+  /* Hero and section headlines (“Moments Taste Better Here.”, “For Every Beautiful Moment”). */
+  .t-display {
+    font-family: var(--font-display);
+    font-size: var(--text-display);
+    font-weight: var(--weight-display);
+    line-height: var(--leading-display);
+    letter-spacing: var(--tracking-display);
+  }
+
+  /* Page titles (“Our Cakes”, “Chocolate Collection”). */
+  .t-title {
+    font-family: var(--font-display);
+    font-size: var(--text-title);
+    font-weight: var(--weight-display);
+    line-height: var(--leading-title);
+    letter-spacing: var(--tracking-display);
+  }
+
+  /* Rose-gold emphasis word inside a headline. Solid colour, no faux-metal gradient. */
+  .t-accent {
+    color: var(--color-accent);
+  }
+
+  /* Editorial italic (“A Little Cake / A Lot of Love”). */
+  .t-italic {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: var(--weight-display);
+  }
+
+  .t-card-title {
+    font-family: var(--font-display);
+    font-size: var(--text-card-title);
+    font-weight: var(--weight-display);
+    line-height: var(--leading-snug);
+  }
+
+  .t-price {
+    font-family: var(--font-display);
+    font-size: var(--text-price);
+    font-weight: var(--weight-display);
+    line-height: 1.1;
+    font-variant-numeric: lining-nums;
+  }
+
+  .t-lead {
+    font-size: var(--text-lead);
+    line-height: var(--leading-body);
+    color: var(--color-text-soft);
+    max-width: var(--measure);
+  }
+
+  .t-small {
+    font-size: var(--text-small);
+    line-height: 1.45;
+  }
+
+  /* Letter-spaced line (“PURE VEG · FRESHLY MADE · PIMPRI, PUNE”, “OUR CAKES”). */
+  .t-eyebrow {
+    font-family: var(--font-ui);
+    font-size: var(--text-eyebrow);
+    font-weight: var(--weight-ui);
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+    color: var(--color-text-eyebrow);
+  }
+
+  [data-surface="ivory"] .t-eyebrow {
+    color: var(--color-eyebrow-on-ivory);
+  }
+
+  [data-surface="ivory"] .t-lead {
+    color: var(--color-text-on-ivory-soft);
+  }
+}

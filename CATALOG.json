@@ -1,0 +1,286 @@
+{
+  "metadata": {
+    "purpose": "Proposal demo only",
+    "source": "User-supplied WhatsApp catalog screenshots",
+    "prices_verified_current": false,
+    "currency": "INR",
+    "note": "Do not extrapolate prices for other weights or invent product variants."
+  },
+  "regular_cakes": [
+    {
+      "id": "cake-01",
+      "name": "Pineapple",
+      "weight": "0.5 kg",
+      "reference_price_inr": 380,
+      "status": "screenshot-derived; reconfirm"
+    },
+    {
+      "id": "cake-02",
+      "name": "Roasted Cashew Truffle",
+      "weight": "0.5 kg",
+      "reference_price_inr": 600,
+      "status": "screenshot-derived; reconfirm"
+    },
+    {
+      "id": "cake-03",
+      "name": "Red Velvet Truffle",
+      "weight": "0.5 kg",
+      "reference_price_inr": 600,
+      "status": "screenshot-derived; reconfirm"
+    },
+    {
+      "id": "cake-04",
+      "name": "Plain Rasmalai",
+      "weight": "0.5 kg",
+      "reference_price_inr": 430,
+      "status": "screenshot-derived; reconfirm"
+    },
+    {
+      "id": "cake-05",
+      "name": "Choco Walnut Truffle",
+      "weight": "0.5 kg",
+      "reference_price_inr": 600,
+      "status": "screenshot-derived; reconfirm"
+    },
+    {
+      "id": "cake-06",
+      "name": "Rose Gulkand",
+      "weight": "0.5 kg",
+      "reference_price_inr": 430,
+      "status": "screenshot-derived; reconfirm"
+    },
+    {
+      "id": "cake-07",
+      "name": "Roasted Almond Truffle",
+      "weight": "0.5 kg",
+      "reference_price_inr": 600,
+      "status": "screenshot-derived; reconfirm"
+    },
+    {
+      "id": "cake-08",
+      "name": "Melted Ferrero Rocher",
+      "weight": "0.5 kg",
+      "reference_price_inr": 750,
+      "status": "screenshot-derived; reconfirm"
+    },
+    {
+      "id": "cake-09",
+      "name": "Hazelnut/Nutella Truffle",
+      "weight": "0.5 kg",
+      "reference_price_inr": 600,
+      "status": "screenshot-derived; reconfirm"
+    },
+    {
+      "id": "cake-10",
+      "name": "Nutty Choco",
+      "weight": "0.5 kg",
+      "reference_price_inr": 450,
+      "status": "screenshot-derived; reconfirm"
+    },
+    {
+      "id": "cake-11",
+      "name": "Oreo Cream",
+      "weight": "0.5 kg",
+      "reference_price_inr": 450,
+      "status": "screenshot-derived; reconfirm"
+    },
+    {
+      "id": "cake-12",
+      "name": "Choco Truffle",
+      "weight": "0.5 kg",
+      "reference_price_inr": 600,
+      "status": "screenshot-derived; reconfirm"
+    },
+    {
+      "id": "cake-13",
+      "name": "Choco Vanilla",
+      "weight": "0.5 kg",
+      "reference_price_inr": 450,
+      "status": "screenshot-derived; reconfirm"
+    },
+    {
+      "id": "cake-14",
+      "name": "Kitkat Cake Cream",
+      "weight": "0.5 kg",
+      "reference_price_inr": 450,
+      "status": "screenshot-derived; reconfirm"
+    },
+    {
+      "id": "cake-15",
+      "name": "Premium Rasmalai",
+      "weight": "0.5 kg",
+      "reference_price_inr": 550,
+      "status": "screenshot-derived; reconfirm"
+    },
+    {
+      "id": "cake-16",
+      "name": "Choco Chips Cream",
+      "weight": "0.5 kg",
+      "reference_price_inr": 450,
+      "status": "screenshot-derived; reconfirm"
+    },
+    {
+      "id": "cake-17",
+      "name": "Belgium Chocolate Premium",
+      "weight": "0.5 kg",
+      "reference_price_inr": 600,
+      "status": "screenshot-derived; reconfirm"
+    },
+    {
+      "id": "cake-18",
+      "name": "Choco Overload Cream",
+      "weight": "0.5 kg",
+      "reference_price_inr": 450,
+      "status": "screenshot-derived; reconfirm"
+    },
+    {
+      "id": "cake-19",
+      "name": "Butterscotch",
+      "weight": "0.5 kg",
+      "reference_price_inr": 390,
+      "status": "screenshot-derived; reconfirm"
+    },
+    {
+      "id": "cake-20",
+      "name": "Blueberry",
+      "weight": "0.5 kg",
+      "reference_price_inr": 390,
+      "status": "screenshot-derived; reconfirm"
+    },
+    {
+      "id": "cake-21",
+      "name": "Red Velvet",
+      "weight": "0.5 kg",
+      "reference_price_inr": 450,
+      "status": "screenshot-derived; reconfirm"
+    },
+    {
+      "id": "cake-22",
+      "name": "Black Forest",
+      "weight": "0.5 kg",
+      "reference_price_inr": 400,
+      "status": "screenshot-derived; reconfirm"
+    },
+    {
+      "id": "cake-23",
+      "name": "Mixed Fruit Exotic",
+      "weight": "0.5 kg",
+      "reference_price_inr": 600,
+      "status": "screenshot-derived; reconfirm"
+    }
+  ],
+  "custom_design_examples": [
+    {
+      "id": "custom-01",
+      "name": "Mermaid",
+      "weight_kg": 1.5,
+      "reference_price_inr": 2250,
+      "status": "reference example, not fixed quote"
+    },
+    {
+      "id": "custom-02",
+      "name": "Cc Half",
+      "weight_kg": null,
+      "reference_price_inr": 750,
+      "status": "reference example, not fixed quote"
+    },
+    {
+      "id": "custom-03",
+      "name": "Cricket Theme",
+      "weight_kg": 1,
+      "reference_price_inr": 1500,
+      "status": "reference example, not fixed quote"
+    },
+    {
+      "id": "custom-04",
+      "name": "Baby Shower",
+      "weight_kg": 1,
+      "reference_price_inr": 1650,
+      "status": "reference example, not fixed quote"
+    },
+    {
+      "id": "custom-05",
+      "name": "Designer Cake",
+      "weight_kg": 1,
+      "reference_price_inr": 1500,
+      "status": "reference example, not fixed quote"
+    },
+    {
+      "id": "custom-06",
+      "name": "Anniversary Couple",
+      "weight_kg": null,
+      "reference_price_inr": 1500,
+      "status": "reference example, not fixed quote"
+    },
+    {
+      "id": "custom-07",
+      "name": "Custom",
+      "weight_kg": 3,
+      "reference_price_inr": 4500,
+      "status": "reference example, not fixed quote"
+    }
+  ],
+  "seasonal_examples": [
+    {
+      "id": "seasonal-01",
+      "name": "Mango Cake",
+      "size_note": "half kg",
+      "reference_price_inr": 550,
+      "status": "historic/seasonal, not currently available unless confirmed"
+    },
+    {
+      "id": "seasonal-02",
+      "name": "Mango Dessert",
+      "size_note": null,
+      "reference_price_inr": 80,
+      "status": "historic/seasonal, not currently available unless confirmed"
+    },
+    {
+      "id": "seasonal-03",
+      "name": "Half Rose Mango Cake",
+      "size_note": null,
+      "reference_price_inr": 600,
+      "status": "historic/seasonal, not currently available unless confirmed"
+    },
+    {
+      "id": "seasonal-04",
+      "name": "Half Rose Mango Cake",
+      "size_note": null,
+      "reference_price_inr": 700,
+      "status": "historic/seasonal, not currently available unless confirmed"
+    },
+    {
+      "id": "seasonal-05",
+      "name": "Bento Cheesecake",
+      "size_note": null,
+      "reference_price_inr": 399,
+      "status": "historic/seasonal, not currently available unless confirmed"
+    },
+    {
+      "id": "seasonal-06",
+      "name": "Mango Cheesecake Slice",
+      "size_note": null,
+      "reference_price_inr": 150,
+      "status": "historic/seasonal, not currently available unless confirmed"
+    },
+    {
+      "id": "seasonal-07",
+      "name": "Bento Cake Regular",
+      "size_note": null,
+      "reference_price_inr": 350,
+      "status": "historic/seasonal, not currently available unless confirmed"
+    },
+    {
+      "id": "seasonal-08",
+      "name": "Mango Tres Leches",
+      "size_note": null,
+      "reference_price_inr": 150,
+      "status": "historic/seasonal, not currently available unless confirmed"
+    }
+  ],
+  "instagram_mentioned_unpriced": [
+    "Tiramisu Tres Leches",
+    "Lotus Biscoff Cheesecake",
+    "Lotus Biscoff Tres Leches"
+  ]
+}

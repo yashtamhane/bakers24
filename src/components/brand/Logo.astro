@@ -1,0 +1,76 @@
+---
+// PROVISIONAL concept logo, recreated from the approved reference until Baker’s 24 supplies an
+// official logo. Stacked lockup: four-petal mark, wordmark, “Pure Veg Cake Shop”.
+// Live text (not an image), so the link’s accessible name is exactly what is shown.
+
+interface Props {
+  href?: string;
+  current?: boolean;
+  class?: string;
+}
+
+const { href = "/", current = false, class: className } = Astro.props;
+---
+
+<a class:list={["logo", className]} href={href} aria-current={current ? "page" : undefined}>
+  <svg class="logo__mark" viewBox="0 0 40 40" width="40" height="40" aria-hidden="true" focusable="false">
+    <defs>
+      <linearGradient id="logo-gold" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#f0bf8c" />
+        <stop offset="0.55" stop-color="#d9955f" />
+        <stop offset="1" stop-color="#b8743f" />
+      </linearGradient>
+    </defs>
+    <g fill="url(#logo-gold)">
+      <path d="M20 1.5c3.6 5 4.6 10.4 0 16.3-4.6-5.9-3.6-11.3 0-16.3Z" />
+      <path d="M20 38.5c-3.6-5-4.6-10.4 0-16.3 4.6 5.9 3.6 11.3 0 16.3Z" />
+      <path d="M1.5 20c5-3.6 10.4-4.6 16.3 0-5.9 4.6-11.3 3.6-16.3 0Z" />
+      <path d="M38.5 20c-5 3.6-10.4 4.6-16.3 0 5.9-4.6 11.3-3.6 16.3 0Z" />
+      <path d="m20 17.2 2.8 2.8-2.8 2.8-2.8-2.8Z" />
+    </g>
+  </svg>
+  <span class="logo__word">Baker<span class="logo__apos">’</span>s 24</span>
+  <span class="logo__tag">Pure Veg Cake Shop</span>
+</a>
+
+<style>
+  .logo {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    color: var(--color-text);
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .logo__mark {
+    flex: none;
+  }
+
+  /* Sizes measured from the reference at 390px: wordmark ≈130px wide, tagline ≈94px wide. */
+  .logo__word {
+    margin-top: 0.4375rem;
+    font-family: var(--font-display);
+    font-size: 1.75rem;
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: -0.005em;
+  }
+
+  /* Libre Bodoni sets the apostrophe loosely; the reference wordmark is tight. */
+  .logo__apos {
+    margin-inline: -0.07em -0.02em;
+  }
+
+  .logo__tag {
+    margin-top: 0.5rem;
+    font-family: var(--font-ui);
+    font-size: 0.625rem;
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-text-eyebrow); /* ref tagline ink #B49B81 */
+  }
+</style>

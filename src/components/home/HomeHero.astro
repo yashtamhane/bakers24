@@ -1,0 +1,176 @@
+---
+// Homepage hero copy, cake and ivory curve (M1). Sits inside HomeStage, which supplies the
+// atmosphere and --hero-h; the cake and curve are positioned against the stage.
+//
+// Measurements (reference at 390px wide, below the 47px status bar; content height 770px):
+//   headline cap-top 30.1% · button bottom 69.2% · cake 191–390 × 522–770 · curve from 84.5%
+
+import { Image } from "astro:assets";
+import Button from "../ui/Button.astro";
+import { images } from "../../data/images";
+
+export type HeadlineFont = "libre-bodoni" | "bodoni-moda";
+
+interface Props {
+  /** Baseline is Libre Bodoni. Bodoni Moda exists only for the M1 comparison page. */
+  headlineFont?: HeadlineFont;
+}
+
+const { headlineFont = "libre-bodoni" } = Astro.props;
+const cake = images.heroCake;
+---
+
+<section class="hero" aria-labelledby="hero-title" data-headline={headlineFont}>
+
+  <div class="hero__copy">
+    <h1 id="hero-title" class="hero__title">
+      <span class="hero__line">Moments</span>
+      <span class="hero__line">Taste <span class="t-accent">Better</span></span>
+      <span class="hero__line">Here.</span>
+    </h1>
+    <p class="hero__lead">Artisanal cakes, crafted with care for every celebration.</p>
+    <Button href="/cakes/" size="hero" icon="arrow-right" class="hero__cta">Explore Cakes</Button>
+  </div>
+
+  <figure class="hero__cake" data-image-kind={cake.kind}>
+    <Image
+      src={cake.src}
+      alt={cake.alt}
+      widths={[234]}
+      sizes="51vw"
+      loading="eager"
+      fetchpriority="high"
+      decoding="async"
+      class="hero__cake-img"
+    />
+    {cake.kind === "temporary" && <figcaption class="hero__image-label">{cake.label}</figcaption>}
+  </figure>
+
+  <!-- Ivory curve, fitted to the reference: leaves the left edge at 84.5% and meets the bottom at 28% width -->
+  <svg class="hero__curve" viewBox="0 0 110 119" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+    <path d="M0 0C5 45 45 105 110 119H0Z" />
+  </svg>
+</section>
+
+<style>
+  /* Static on purpose: the cake and curve position against HomeStage. */
+  .hero {
+    display: block;
+  }
+
+  .hero__copy {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding-top: max(var(--space-6), calc(var(--hero-h) * 0.301 - var(--header-h) - var(--headline-size) * var(--cap-ratio)));
+    padding-inline: var(--copy-inset) var(--gutter);
+  }
+
+  /* Soft scrim that travels with the copy: when text is enlarged and flows over the lower
+     florals, they are dimmed behind it. At normal size it sits on an already-dark area. */
+  .hero__copy::before {
+    content: "";
+    position: absolute;
+    inset: 12% -6% -4% 0;
+    z-index: -1;
+    background: radial-gradient(farthest-side at 30% 55%, rgb(14 7 4 / 0.62), rgb(14 7 4 / 0.3) 70%, transparent);
+    pointer-events: none;
+  }
+
+  .hero__title {
+    font-family: var(--font-display);
+    font-size: var(--headline-size);
+    font-weight: var(--weight-display);
+    line-height: 0.99; /* measured line pitch 49.5px at 50px */
+    letter-spacing: -0.02em; /* set-width measured 2.7% wider than the reference at -0.01em */
+    color: var(--color-text);
+    text-wrap: initial;
+  }
+
+  /* Soft dark halo: near-invisible at normal size, keeps contrast wherever enlarged text flows
+     over the atmosphere (checked at 100% and 200% text in tests/e2e/home.spec.ts). */
+  .hero__title,
+  .hero__lead {
+    text-shadow:
+      0 0 1.1em rgb(12 6 3 / 0.55),
+      0 1px 2px rgb(12 6 3 / 0.5);
+  }
+
+  .hero__line {
+    display: block;
+  }
+
+  /* M1 comparison only: Bodoni Moda at its measured match (weight 500, optical sizing on). */
+  .hero[data-headline="bodoni-moda"] .hero__title {
+    font-family: "Bodoni Moda Variable", var(--font-display);
+    font-weight: 500;
+    font-optical-sizing: auto;
+  }
+
+  .hero__lead {
+    max-width: 16em; /* breaks after “care”, as in the reference */
+    margin-top: 0.75rem;
+    font-size: 1.125rem; /* reference ascender height 14px ≈ 18px type */
+    line-height: 1.5; /* measured line pitch 27px */
+    color: var(--color-text-soft);
+  }
+
+  .hero__copy :global(.hero__cta) {
+    margin-top: 1.5rem;
+    margin-inline-start: -0.375rem;
+  }
+
+  /* Cake: right/bottom aligned, ~51% of the width; height capped as a share of the hero so it
+     never climbs into the copy on short screens. */
+  .hero__cake {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    z-index: 0;
+    width: min(51vw, calc(var(--hero-h) * 0.32 * 0.807));
+    margin: 0;
+  }
+
+  .hero__cake :global(.hero__cake-img) {
+    width: 100%;
+    height: auto;
+  }
+
+  .hero__image-label {
+    position: absolute;
+    right: var(--space-2);
+    bottom: var(--space-2);
+    padding: 0.125rem 0.5rem;
+    border-radius: var(--radius-pill);
+    background: rgb(18 10 6 / 0.82);
+    color: var(--color-text);
+    font-size: 0.6875rem;
+    font-weight: var(--weight-ui);
+    letter-spacing: 0.02em;
+  }
+
+  .hero__curve {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    z-index: 0;
+    width: 28.2vw;
+    height: calc(var(--hero-h) * 0.1545);
+    fill: var(--color-surface-ivory);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .hero__cake {
+      animation: hero-rise 700ms var(--ease-out) 120ms both;
+    }
+
+    @keyframes hero-rise {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+    }
+  }
+</style>

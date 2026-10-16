@@ -1,0 +1,75 @@
+---
+// Tonal surfaces from the reference. Sets `data-surface` so typography and focus rings
+// switch to the variant that passes contrast on that ground.
+//   espresso   page background
+//   cocoa      warm brown panels
+//   cherry     black-cherry wash
+//   ivory      the soft ivory interlude
+//   card       clay product-card surface
+
+import type { HTMLTag } from "astro/types";
+
+interface Props {
+  as?: HTMLTag;
+  tone?: "espresso" | "cocoa" | "cherry" | "ivory" | "card";
+  radius?: "none" | "md" | "lg" | "xl" | "arch";
+  padded?: boolean;
+  class?: string;
+}
+
+const { as: Tag = "div", tone = "espresso", radius = "none", padded = false, class: className } = Astro.props;
+---
+
+<Tag class:list={["surface", `surface--${tone}`, `surface--radius-${radius}`, padded && "surface--padded", className]} data-surface={tone}>
+  <slot />
+</Tag>
+
+<style>
+  .surface--espresso {
+    background: var(--color-bg);
+    color: var(--color-text);
+  }
+
+  .surface--cocoa {
+    background: var(--color-surface-cocoa);
+    color: var(--color-text);
+  }
+
+  .surface--cherry {
+    background: var(--color-surface-cherry);
+    color: var(--color-text);
+  }
+
+  .surface--ivory {
+    background: var(--color-surface-ivory);
+    color: var(--color-text-on-ivory);
+    color-scheme: light;
+  }
+
+  .surface--card {
+    background: var(--color-surface-card);
+    color: var(--color-text);
+    border: 1px solid var(--color-hairline);
+    box-shadow: var(--shadow-card);
+  }
+
+  .surface--padded {
+    padding: var(--space-6);
+  }
+
+  .surface--radius-md {
+    border-radius: var(--radius-md);
+  }
+
+  .surface--radius-lg {
+    border-radius: var(--radius-lg);
+  }
+
+  .surface--radius-xl {
+    border-radius: var(--radius-xl);
+  }
+
+  .surface--radius-arch {
+    border-radius: var(--radius-arch) var(--radius-arch) var(--radius-lg) var(--radius-lg);
+  }
+</style>

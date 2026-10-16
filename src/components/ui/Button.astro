@@ -1,0 +1,164 @@
+---
+// Pill buttons from the approved reference.
+//   primary        filled wine with a fine rose-gold edge (“Explore Cakes →”)
+//   outline        rose-gold edge on dark surfaces (“Order on WhatsApp”)
+//   outline-ivory  wine edge and label on the ivory interlude (“Explore Collection →”)
+// Renders <a> when `href` is given, otherwise <button>.
+
+import type { HTMLAttributes } from "astro/types";
+import Icon, { type IconName } from "./Icon.astro";
+
+type Variant = "primary" | "outline" | "outline-ivory";
+
+interface Props {
+  variant?: Variant;
+  href?: string;
+  type?: "button" | "submit" | "reset";
+  icon?: IconName;
+  iconPosition?: "start" | "end";
+  /** md 44px · lg 56px · hero 64px (the reference “Explore Cakes” pill) */
+  size?: "md" | "lg" | "hero";
+  block?: boolean;
+  disabled?: boolean;
+  class?: string;
+  attrs?: HTMLAttributes<"a"> & HTMLAttributes<"button">;
+}
+
+const {
+  variant = "primary",
+  href,
+  type = "button",
+  icon,
+  iconPosition = "end",
+  size = "md",
+  block = false,
+  disabled = false,
+  class: className,
+  attrs = {},
+} = Astro.props;
+
+const classes = ["button", `button--${variant}`, `button--${size}`, block && "button--block", className];
+const iconSize = size === "hero" ? 20 : 18;
+---
+
+{
+  href && !disabled ? (
+    <a class:list={classes} href={href} {...attrs}>
+      {icon && iconPosition === "start" && <Icon name={icon} size={iconSize} />}
+      <span class="button__label">
+        <slot />
+      </span>
+      {icon && iconPosition === "end" && <Icon name={icon} size={iconSize} />}
+    </a>
+  ) : (
+    <button class:list={classes} type={type} disabled={disabled} {...attrs}>
+      {icon && iconPosition === "start" && <Icon name={icon} size={iconSize} />}
+      <span class="button__label">
+        <slot />
+      </span>
+      {icon && iconPosition === "end" && <Icon name={icon} size={iconSize} />}
+    </button>
+  )
+}
+
+<style>
+  .button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    min-height: var(--tap-min);
+    padding-inline: var(--space-6);
+    border-radius: var(--radius-pill);
+    border: 1px solid transparent;
+    font-family: var(--font-ui);
+    font-size: var(--text-button);
+    font-weight: var(--weight-ui);
+    line-height: 1.2;
+    letter-spacing: 0.005em;
+    max-width: 100%;
+    text-align: center;
+    text-decoration: none;
+    /* One line normally; wraps instead of forcing sideways scroll when text is enlarged (WCAG 1.4.10). */
+    text-wrap: balance;
+    transition:
+      background-color var(--duration-base) var(--ease-out),
+      border-color var(--duration-base) var(--ease-out),
+      color var(--duration-base) var(--ease-out),
+      transform var(--duration-fast) var(--ease-out);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .button--lg {
+    min-height: 3.5rem;
+    padding-inline: var(--space-8);
+    gap: var(--space-4);
+  }
+
+  .button--hero {
+    min-height: 4rem;
+    padding-inline: 2.5rem;
+    gap: var(--space-4);
+    font-size: 1.0625rem;
+  }
+
+  .button--block {
+    display: flex;
+    width: 100%;
+  }
+
+  .button:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  .button :global(.icon) {
+    transition: transform var(--duration-base) var(--ease-out);
+  }
+
+  .button:hover:not(:disabled) :global(.icon:last-child) {
+    transform: translateX(3px);
+  }
+
+  /* Reference fill runs darker at the top (≈#540B12) to slightly lighter at the bottom (≈#6A141A). */
+  .button--primary {
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-cta) 80%, #000) 0%,
+      var(--color-cta) 55%,
+      color-mix(in srgb, var(--color-cta) 88%, var(--color-cta-hover)) 100%
+    );
+    border-color: var(--color-cta-edge);
+    color: var(--color-cta-text);
+    box-shadow: var(--shadow-cta), inset 0 1px 0 rgb(255 255 255 / 0.08);
+  }
+
+  .button--primary:hover:not(:disabled) {
+    background: var(--color-cta-hover);
+  }
+
+  .button--outline {
+    background: color-mix(in srgb, var(--palette-espresso-950) 35%, transparent);
+    border-color: var(--color-accent);
+    color: var(--color-text);
+  }
+
+  .button--outline:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--color-accent) 14%, transparent);
+  }
+
+  .button--outline-ivory {
+    background: transparent;
+    border-color: color-mix(in srgb, var(--color-cta) 70%, transparent);
+    color: var(--color-cta);
+  }
+
+  .button--outline-ivory:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--color-cta) 8%, transparent);
+  }
+
+  .button:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+    box-shadow: none;
+  }
+</style>

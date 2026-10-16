@@ -1,0 +1,49 @@
+---
+// Site header from the approved mobile reference: menu (left), stacked identity (centre),
+// search (right). Transparent so it sits over the hero atmosphere.
+//
+// M1: the menu drawer and search arrive in M2, so both controls are present but announced as
+// unavailable (aria-disabled) rather than silently doing nothing.
+
+import Logo from "../brand/Logo.astro";
+import IconButton from "../ui/IconButton.astro";
+
+interface Props {
+  currentPath?: string;
+}
+
+const { currentPath = "/" } = Astro.props;
+---
+
+<header class="site-header">
+  <IconButton icon="menu" label="Open menu" unavailable iconSize={30} class="site-header__action" />
+  <Logo current={currentPath === "/"} class="site-header__logo" />
+  <IconButton icon="search" label="Search cakes" unavailable iconSize={32} class="site-header__action" />
+</header>
+
+<style>
+  /* Reference (390px, below the status bar): icon centres 37.5px down, 41.5px / 345px across;
+     logo mark centred on the same line. */
+  /* In normal flow with a min-height, so enlarged text grows the header instead of overlapping
+     the hero. Transparent: the page behind it supplies the atmosphere. */
+  .site-header {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: start;
+    min-height: calc(var(--header-h, 7rem) + env(safe-area-inset-top, 0px));
+    padding-top: calc(env(safe-area-inset-top, 0px) + 0.96875rem);
+    padding-inline: max(var(--gutter-header, 1.25rem), env(safe-area-inset-left, 0px));
+  }
+
+  .site-header :global(.site-header__logo) {
+    justify-self: center;
+    max-width: 100%;
+    margin-top: 0.125rem;
+  }
+
+  .site-header :global(.site-header__action:last-child) {
+    justify-self: end;
+  }
+</style>

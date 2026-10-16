@@ -1,0 +1,96 @@
+---
+// Icon-only controls. Always 44×44 or larger, always with an accessible name.
+//   plain    header icons (menu, search, back)
+//   ring     circular arrow from the editorial tiles
+//   toggle   favourite heart; `pressed` drives aria-pressed and the filled state
+
+import Icon, { type IconName } from "./Icon.astro";
+
+interface Props {
+  icon: IconName;
+  label: string;
+  variant?: "plain" | "ring" | "toggle";
+  pressed?: boolean;
+  href?: string;
+  /** Shown but not yet functional (announced as unavailable via aria-disabled). */
+  unavailable?: boolean;
+  /** Glyph size in px (default 22). */
+  iconSize?: number;
+  class?: string;
+}
+
+const { icon, label, variant = "plain", pressed, href, unavailable = false, iconSize = 22, class: className } = Astro.props;
+const classes = ["icon-button", `icon-button--${variant}`, className];
+---
+
+{
+  href ? (
+    <a class:list={classes} href={href} aria-label={label}>
+      <Icon name={icon} size={iconSize} />
+    </a>
+  ) : (
+    <button
+      class:list={classes}
+      type="button"
+      aria-label={label}
+      aria-pressed={variant === "toggle" ? (pressed ? "true" : "false") : undefined}
+      aria-disabled={unavailable ? "true" : undefined}
+    >
+      <Icon name={icon} size={iconSize} />
+    </button>
+  )
+}
+
+<style>
+  .icon-button {
+    display: inline-grid;
+    place-items: center;
+    width: var(--tap-min);
+    height: var(--tap-min);
+    border-radius: var(--radius-pill);
+    color: var(--color-text);
+    transition:
+      background-color var(--duration-base) var(--ease-out),
+      color var(--duration-base) var(--ease-out),
+      transform var(--duration-fast) var(--ease-out);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .icon-button[aria-disabled="true"] {
+    cursor: default;
+  }
+
+  .icon-button:hover:not([aria-disabled="true"]) {
+    background: color-mix(in srgb, var(--palette-cream-100) 10%, transparent);
+  }
+
+  .icon-button:active:not([aria-disabled="true"]) {
+    transform: scale(0.94);
+  }
+
+  .icon-button--ring :global(.icon) {
+    width: 1.125rem;
+    height: 1.125rem;
+  }
+
+  .icon-button--ring::before {
+    content: "";
+    position: absolute;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: inherit;
+    border: 1px solid color-mix(in srgb, var(--palette-cream-100) 80%, transparent);
+  }
+
+  .icon-button--ring {
+    position: relative;
+  }
+
+  .icon-button--toggle[aria-pressed="true"] {
+    color: var(--color-accent);
+  }
+
+  .icon-button--toggle[aria-pressed="true"] :global(.icon) {
+    fill: currentColor;
+  }
+</style>

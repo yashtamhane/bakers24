@@ -1,0 +1,22 @@
+---
+// Internal M1 comparison: the homepage first screen with Bodoni Moda as the hero headline.
+// Identical to "/" except the headline face. Not a production route (injected in dev and
+// INTERNAL_PAGES=1 builds only); the font decision is the client's, nothing switches automatically.
+
+import BaseLayout from "../layouts/BaseLayout.astro";
+import SiteHeader from "../components/layout/SiteHeader.astro";
+import HomeStage from "../components/home/HomeStage.astro";
+import HomeHero from "../components/home/HomeHero.astro";
+import "@fontsource-variable/bodoni-moda/standard.css";
+import bodoniModaLatin from "@fontsource-variable/bodoni-moda/files/bodoni-moda-latin-standard-normal.woff2?url";
+---
+
+<BaseLayout title="Hero headline: Bodoni Moda (internal comparison)" noindex>
+  <link slot="head" rel="preload" href={bodoniModaLatin} as="font" type="font/woff2" crossorigin />
+  <HomeStage>
+    <SiteHeader currentPath="/" />
+    <main id="main">
+      <HomeHero headlineFont="bodoni-moda" />
+    </main>
+  </HomeStage>
+</BaseLayout>

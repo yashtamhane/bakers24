@@ -1,0 +1,17 @@
+---
+// Homepage. M1 delivers the mobile first screen only; further sections arrive in M2.
+
+import BaseLayout from "../layouts/BaseLayout.astro";
+import SiteHeader from "../components/layout/SiteHeader.astro";
+import HomeStage from "../components/home/HomeStage.astro";
+import HomeHero from "../components/home/HomeHero.astro";
+---
+
+<BaseLayout title="Baker’s 24 · Pure Veg Cake Shop, Pimpri (concept proposal)" noindex>
+  <HomeStage>
+    <SiteHeader currentPath="/" />
+    <main id="main">
+      <HomeHero />
+    </main>
+  </HomeStage>
+</BaseLayout>

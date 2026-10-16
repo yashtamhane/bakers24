@@ -1,0 +1,52 @@
+---
+// Filter chip from the approved reference: translucent cocoa pill, blush when selected.
+// A native toggle button (aria-pressed), so it works by touch, mouse and keyboard.
+
+interface Props {
+  label: string;
+  value: string;
+  pressed?: boolean;
+}
+
+const { label, value, pressed = false } = Astro.props;
+---
+
+<button class="chip" type="button" aria-pressed={pressed ? "true" : "false"} data-value={value}>
+  {label}
+</button>
+
+<style>
+  .chip {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tap-min);
+    padding-inline: var(--space-5);
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--color-chip-border);
+    background: var(--color-chip-bg);
+    color: var(--color-chip-text);
+    font-family: var(--font-ui);
+    font-size: var(--text-small);
+    font-weight: var(--weight-ui);
+    line-height: 1;
+    white-space: nowrap;
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    transition:
+      background-color var(--duration-base) var(--ease-out),
+      border-color var(--duration-base) var(--ease-out),
+      color var(--duration-base) var(--ease-out);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .chip:hover {
+    border-color: var(--palette-taupe-300);
+  }
+
+  .chip[aria-pressed="true"] {
+    background: var(--color-chip-active-bg);
+    border-color: var(--color-chip-active-bg);
+    color: var(--color-chip-active-text);
+  }
+</style>

@@ -1,0 +1,828 @@
+---
+// Internal style guide: /_styleguide
+// Lives outside src/pages so production builds never bundle it (or its reference crops and
+// candidate fonts). The route is injected by the internal-pages integration in astro.config.mjs.
+
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Container from "../components/layout/Container.astro";
+import Stack from "../components/layout/Stack.astro";
+import Cluster from "../components/layout/Cluster.astro";
+import Surface from "../components/layout/Surface.astro";
+import Button from "../components/ui/Button.astro";
+import IconButton from "../components/ui/IconButton.astro";
+import Icon from "../components/ui/Icon.astro";
+import Chip from "../components/ui/Chip.astro";
+import ChipGroup from "../components/ui/ChipGroup.astro";
+
+// Font candidates are loaded here only, for the side-by-side comparison.
+import "@fontsource-variable/bodoni-moda";
+import "@fontsource/prata";
+import "@fontsource-variable/playfair-display";
+import "@fontsource-variable/cormorant-garamond";
+import "@fontsource-variable/inter";
+import "@fontsource-variable/manrope";
+
+import tokensCss from "../styles/tokens.css?raw";
+import { AA_MINIMUM, contrastRatio, deltaE, parseHex } from "../lib/color";
+import { parseCustomProperties, resolveColor, resolveColorHex } from "../lib/tokens";
+import { formatInr } from "../lib/format";
+import { regularCakes } from "../data/catalog";
+import { collections } from "../data/collections";
+import { contrastPairs } from "../styleguide/contrast-pairs";
+import { colorMap } from "../styleguide/color-map";
+import referenceColors from "../styleguide/reference-colors.json";
+import fontMatch from "../styleguide/font-match.json";
+import colorSamplesImage from "../styleguide/reference-crops/color-samples.jpg";
+import refDeskLine1 from "../styleguide/reference-crops/font-desk-line-1.png";
+import refMobileLine1 from "../styleguide/reference-crops/font-mobile-line-1.png";
+import refDeskBody from "../styleguide/reference-crops/font-desk-body-1.png";
+
+const props = parseCustomProperties(tokensCss);
+const samples = new Map(referenceColors.samples.map((s) => [s.id, s]));
+
+const palette = colorMap.map((m) => {
+  const value = resolveColorHex(props, m.token);
+  const sample = m.sample ? samples.get(m.sample) : undefined;
+  return {
+    ...m,
+    value,
+    sampleHex: sample?.hex ?? null,
+    sampleRole: sample?.role ?? null,
+    delta: sample ? deltaE(parseHex(value), parseHex(sample.hex)) : null,
+  };
+});
+
+const contrastRows = contrastPairs.map((pair) => {
+  const backdrop = pair.over ? resolveColor(props, pair.over) : undefined;
+  const bg = resolveColor(props, pair.bg, backdrop);
+  const fg = resolveColor(props, pair.fg, bg);
+  const ratio = contrastRatio(fg, bg);
+  return { ...pair, ratio, min: AA_MINIMUM[pair.level], pass: ratio >= AA_MINIMUM[pair.level], fgHex: resolveColorHex(props, pair.fg, bg), bgHex: resolveColorHex(props, pair.bg, backdrop) };
+});
+
+const serifs = fontMatch.summary.filter((f) => f.kind === "serif");
+const sanses = fontMatch.summary.filter((f) => f.kind === "sans");
+const CHOSEN = new Set(["Libre Bodoni Variable", "DM Sans Variable"]);
+
+// Live specimens next to the reference crops: the chosen face plus the strongest alternatives.
+const specimenSerifs = ["Libre Bodoni Variable", "Bodoni Moda Variable", "Prata", "Playfair Display Variable", "Cormorant Garamond Variable"]
+  .map((family) => serifs.find((s) => s.family === family)!)
+  .filter(Boolean);
+const specimenSanses = ["DM Sans Variable", "Manrope Variable", "Inter Variable"].map((family) => sanses.find((s) => s.family === family)!).filter(Boolean);
+
+const sampleCakes = ["cake-01", "cake-02", "cake-08"].map((id) => regularCakes.find((c) => c.id === id)!);
+
+const spacing = [1, 2, 3, 4, 5, 6, 8, 10, 12, 16, 20, 24];
+const radii = ["--radius-sm", "--radius-md", "--radius-lg", "--radius-xl", "--radius-pill"];
+const motion = ["--duration-fast", "--duration-base", "--duration-slow", "--ease-out"];
+
+// Reference panel scale: desktop is drawn at 0.674 of 1440px, the mobile home at 0.603 of 390px.
+const DESK_SCALE = 971 / 1440;
+const MOBILE_SCALE = 235 / 390;
+---
+
+<BaseLayout title="Style guide · Baker’s 24 (internal)" noindex>
+  <header class="sg-header">
+    <Container>
+      <Stack gap={3}>
+        <p class="t-eyebrow">Internal · M0 foundations · not part of the proposal</p>
+        <h1 class="t-title">Baker’s 24 style guide</h1>
+        <p class="t-lead">
+          Tokens, type and controls tuned against <code>references/approved-design.png</code>. Reference crops on this page are
+          comparison aids only.
+        </p>
+        <nav aria-label="Style guide sections">
+          <ul role="list" class="sg-toc">
+            <li><a href="#color">Colour</a></li>
+            <li><a href="#contrast">Contrast</a></li>
+            <li><a href="#type">Typography</a></li>
+            <li><a href="#fonts">Font comparison</a></li>
+            <li><a href="#buttons">Buttons</a></li>
+            <li><a href="#chips">Chips</a></li>
+            <li><a href="#icons">Icon buttons</a></li>
+            <li><a href="#surfaces">Surfaces &amp; layout</a></li>
+          </ul>
+        </nav>
+      </Stack>
+    </Container>
+  </header>
+
+  <main>
+    <!-- Colour -->
+    <section id="color" class="sg-section" aria-labelledby="color-h">
+      <Container>
+        <Stack gap={6}>
+          <Stack gap={2}>
+            <h2 id="color-h" class="sg-h2">Colour: token vs reference</h2>
+            <p class="t-lead">
+              Each palette token beside the colour sampled from the approved reference. ΔE (CIE76): under 2.3 is barely visible, above
+              10 is a deliberate change.
+            </p>
+          </Stack>
+          <ul role="list" class="swatches">
+            {
+              palette.map((p) => (
+                <li class="swatch">
+                  <div class="swatch__chips">
+                    <span class="swatch__chip" style={`background:${p.value}`} title={`Token ${p.value}`} />
+                    <span
+                      class:list={["swatch__chip", !p.sampleHex && "swatch__chip--none"]}
+                      style={p.sampleHex ? `background:${p.sampleHex}` : undefined}
+                      title={p.sampleHex ? `Reference ${p.sampleHex}` : "No reference sample"}
+                    />
+                  </div>
+                  <div class="swatch__meta">
+                    <code>{p.token.replace("--palette-", "")}</code>
+                    <span>
+                      Token <strong>{p.value}</strong> · Ref <strong>{p.sampleHex ?? "—"}</strong>
+                      {p.delta !== null && <span class:list={["delta", p.delta > 10 && "delta--big"]}>ΔE {p.delta.toFixed(1)}</span>}
+                    </span>
+                    <span class="swatch__note">{p.note}</span>
+                  </div>
+                </li>
+              ))
+            }
+          </ul>
+          <details class="sg-details">
+            <summary>Where each reference sample was taken</summary>
+            <img
+              src={colorSamplesImage.src}
+              width={colorSamplesImage.width}
+              height={colorSamplesImage.height}
+              alt="The approved reference collage with green boxes marking each colour sample region."
+              loading="lazy"
+              decoding="async"
+            />
+          </details>
+        </Stack>
+      </Container>
+    </section>
+
+    <!-- Contrast -->
+    <section id="contrast" class="sg-section" aria-labelledby="contrast-h">
+      <Container>
+        <Stack gap={6}>
+          <Stack gap={2}>
+            <h2 id="contrast-h" class="sg-h2">Contrast audit (WCAG 2.2 AA)</h2>
+            <p class="t-lead">The same pairs are enforced by <code>tests/unit/contrast.test.ts</code>.</p>
+          </Stack>
+          <div class="table-wrap" role="region" aria-labelledby="contrast-h" tabindex="0">
+            <table class="sg-table">
+              <thead>
+                <tr><th scope="col">Use</th><th scope="col">Sample</th><th scope="col">Ratio</th><th scope="col">Needs</th><th scope="col">Result</th></tr>
+              </thead>
+              <tbody>
+                {
+                  contrastRows.map((r) => (
+                    <tr>
+                      <th scope="row">
+                        {r.use}
+                        <code class="sg-table__tokens">
+                          {r.fg} / {r.bg}
+                          {r.over && ` over ${r.over}`}
+                        </code>
+                      </th>
+                      <td>
+                        {r.level === "non-text" ? (
+                          <span class="contrast-sample contrast-sample--edge" style={`border-color:${r.fgHex};background:${r.bgHex}`} role="img" aria-label={`${r.fgHex} edge on ${r.bgHex}`} />
+                        ) : (
+                          <span class="contrast-sample" style={`color:${r.fgHex};background:${r.bgHex}`}>
+                            Aa
+                          </span>
+                        )}
+                      </td>
+                      <td>{r.ratio.toFixed(2)}:1</td>
+                      <td>{r.min}:1</td>
+                      <td>{r.pass ? "Pass" : "Fail"}</td>
+                    </tr>
+                  ))
+                }
+              </tbody>
+            </table>
+          </div>
+        </Stack>
+      </Container>
+    </section>
+
+    <!-- Typography -->
+    <section id="type" class="sg-section" aria-labelledby="type-h">
+      <Container>
+        <Stack gap={6}>
+          <Stack gap={2}>
+            <h2 id="type-h" class="sg-h2">Typography</h2>
+            <p class="t-lead">Libre Bodoni for display, prices and italic accents; DM Sans for interface and body. Two families only.</p>
+          </Stack>
+
+          <Surface tone="espresso" radius="xl" padded class="specimen">
+            <Stack gap={5}>
+              <p class="t-eyebrow">Pure veg · Pimpri, Pune</p>
+              <p class="t-display">Moments<br />Taste <span class="t-accent">Better</span><br />Here.</p>
+              <p class="t-lead">Artisanal cakes, crafted with care for every celebration.</p>
+              <p class="t-title">Our Cakes</p>
+              <Stack gap={1}>
+                {
+                  sampleCakes.map((cake) => (
+                    <p class="specimen__row">
+                      <span class="t-card-title">{cake.name}</span>
+                      <span class="t-price">{formatInr(cake.reference_price_inr)}</span>
+                      <span class="t-small specimen__weight">{cake.weight}</span>
+                    </p>
+                  ))
+                }
+              </Stack>
+              <p class="t-italic specimen__italic">A Little Cake<br />A Lot of Love</p>
+            </Stack>
+          </Surface>
+
+          <Surface tone="ivory" radius="xl" padded>
+            <Stack gap={4}>
+              <p class="t-eyebrow">Our cakes</p>
+              <p class="t-display">For Every<br />Beautiful<br />Moment</p>
+              <p class="t-lead">From birthdays to anniversaries, custom creations to seasonal delights, find a cake that feels just right.</p>
+            </Stack>
+          </Surface>
+
+          <div class="table-wrap" role="region" aria-label="Type scale" tabindex="0">
+            <table class="sg-table">
+              <thead><tr><th scope="col">Role</th><th scope="col">Class</th><th scope="col">Size token</th><th scope="col">Value</th></tr></thead>
+              <tbody>
+                <tr><th scope="row">Display headline</th><td><code>.t-display</code></td><td><code>--text-display</code></td><td>{props.get("--text-display")}</td></tr>
+                <tr><th scope="row">Page title</th><td><code>.t-title</code></td><td><code>--text-title</code></td><td>{props.get("--text-title")}</td></tr>
+                <tr><th scope="row">Card title</th><td><code>.t-card-title</code></td><td><code>--text-card-title</code></td><td>{props.get("--text-card-title")}</td></tr>
+                <tr><th scope="row">Price</th><td><code>.t-price</code></td><td><code>--text-price</code></td><td>{props.get("--text-price")}</td></tr>
+                <tr><th scope="row">Lead</th><td><code>.t-lead</code></td><td><code>--text-lead</code></td><td>{props.get("--text-lead")}</td></tr>
+                <tr><th scope="row">Body</th><td>—</td><td><code>--text-body</code></td><td>{props.get("--text-body")}</td></tr>
+                <tr><th scope="row">Eyebrow</th><td><code>.t-eyebrow</code></td><td><code>--text-eyebrow</code></td><td>{props.get("--text-eyebrow")}</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </Stack>
+      </Container>
+    </section>
+
+    <!-- Font comparison -->
+    <section id="fonts" class="sg-section" aria-labelledby="fonts-h">
+      <Container>
+        <Stack gap={6}>
+          <Stack gap={2}>
+            <h2 id="fonts-h" class="sg-h2">Font comparison</h2>
+            <p class="t-lead">{fontMatch.method}</p>
+          </Stack>
+
+          <div class="table-wrap" role="region" aria-label="Font match scores" tabindex="0">
+            <table class="sg-table">
+              <thead>
+                <tr><th scope="col">Family</th><th scope="col">Role</th><th scope="col">Best weight</th><th scope="col">Tracking</th><th scope="col">Score</th><th scope="col">₹ glyph</th><th scope="col">Decision</th></tr>
+              </thead>
+              <tbody>
+                {
+                  fontMatch.summary.map((f) => (
+                    <tr class:list={[CHOSEN.has(f.family) && "is-chosen"]}>
+                      <th scope="row">{f.family.replace(" Variable", "")}</th>
+                      <td>{f.kind}</td>
+                      <td>{f.bestWeight}</td>
+                      <td>{f.bestTrackingEm}em</td>
+                      <td>{f.meanScore.toFixed(3)}</td>
+                      <td>{f.rupeeGlyph ? "Yes" : `No (falls back to ${f.rupeeRenderedBy})`}</td>
+                      <td>{CHOSEN.has(f.family) ? "Chosen" : !f.rupeeGlyph ? "Rejected: no ₹" : ""}</td>
+                    </tr>
+                  ))
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <h3 class="sg-h3" id="fc-desk">Desktop headline at true size</h3>
+          <div class="font-compare" role="region" aria-labelledby="fc-desk" tabindex="0">
+            <figure class="font-compare__row">
+              <img src={refDeskLine1.src} width={refDeskLine1.width / DESK_SCALE} height={refDeskLine1.height / DESK_SCALE} alt="Reference: the word Moments from the approved desktop hero." />
+              <figcaption>Reference crop (desktop, scaled to 1440px)</figcaption>
+            </figure>
+            {
+              specimenSerifs.map((f) => (
+                <figure class="font-compare__row">
+                  <span class="font-compare__sample font-compare__sample--desk" style={`font-family:"${f.family}";font-weight:${f.family === "Libre Bodoni Variable" ? "var(--weight-display)" : f.bestWeight}`}>
+                    Moments ₹380
+                  </span>
+                  <figcaption>
+                    {f.family.replace(" Variable", "")} · {f.family === "Libre Bodoni Variable" ? "weight 400 (token)" : `weight ${f.bestWeight}`} · score {f.meanScore.toFixed(3)}
+                    {!f.rupeeGlyph && " · ₹ missing"}
+                  </figcaption>
+                </figure>
+              ))
+            }
+          </div>
+
+          <h3 class="sg-h3" id="fc-mobile">Mobile headline at true size</h3>
+          <div class="font-compare" role="region" aria-labelledby="fc-mobile" tabindex="0">
+            <figure class="font-compare__row">
+              <img src={refMobileLine1.src} width={refMobileLine1.width / MOBILE_SCALE} height={refMobileLine1.height / MOBILE_SCALE} alt="Reference: the word Moments from the approved mobile hero." />
+              <figcaption>Reference crop (mobile, scaled to 390px)</figcaption>
+            </figure>
+            {
+              [400, 500].map((w) => (
+                <figure class="font-compare__row">
+                  <span class="font-compare__sample font-compare__sample--mobile" style={`font-weight:${w}`}>
+                    Moments
+                  </span>
+                  <figcaption>Libre Bodoni · weight {w}</figcaption>
+                </figure>
+              ))
+            }
+          </div>
+
+          <h3 class="sg-h3" id="fc-body">Body text at true size</h3>
+          <div class="font-compare" role="region" aria-labelledby="fc-body" tabindex="0">
+            <figure class="font-compare__row">
+              <img src={refDeskBody.src} width={refDeskBody.width / DESK_SCALE} height={refDeskBody.height / DESK_SCALE} alt="Reference: a line of hero body text from the approved desktop design." />
+              <figcaption>Reference crop (desktop body, scaled to 1440px)</figcaption>
+            </figure>
+            {
+              specimenSanses.map((f) => (
+                <figure class="font-compare__row">
+                  <span class="font-compare__sample font-compare__sample--body" style={`font-family:"${f.family}"`}>
+                    Artisanal cakes, crafted with care for
+                  </span>
+                  <figcaption>{f.family.replace(" Variable", "")} · weight 400 · score {f.meanScore.toFixed(3)}</figcaption>
+                </figure>
+              ))
+            }
+          </div>
+        </Stack>
+      </Container>
+    </section>
+
+    <!-- Buttons -->
+    <section id="buttons" class="sg-section" aria-labelledby="buttons-h">
+      <Container>
+        <Stack gap={6}>
+          <h2 id="buttons-h" class="sg-h2">Buttons</h2>
+          <Surface tone="espresso" radius="xl" padded class="demo-dark">
+            <Stack gap={5}>
+              <Cluster gap={4}>
+                <Button icon="arrow-right">Explore Cakes</Button>
+                <Button variant="outline" icon="whatsapp">Order on WhatsApp</Button>
+                <Button disabled icon="arrow-right">Unavailable</Button>
+              </Cluster>
+              <Button size="lg" block icon="arrow-right">Full-width step action</Button>
+              <p class="t-small sg-muted">States: hover lightens the fill and nudges the arrow; press scales to 98%; disabled drops to 55% opacity. Keyboard focus shows a 2px rose-gold ring (try Tab).</p>
+            </Stack>
+          </Surface>
+          <Surface tone="ivory" radius="xl" padded>
+            <Cluster gap={4}>
+              <Button variant="outline-ivory" icon="arrow-right">Explore Collection</Button>
+              <Button icon="arrow-right">Primary on ivory</Button>
+            </Cluster>
+          </Surface>
+        </Stack>
+      </Container>
+    </section>
+
+    <!-- Chips -->
+    <section id="chips" class="sg-section" aria-labelledby="chips-h">
+      <Container>
+        <Stack gap={6}>
+          <Stack gap={2}>
+            <h2 id="chips-h" class="sg-h2">Chips</h2>
+            <p class="t-lead">Labels come from the curated collections data. Single-select toggles; the row scrolls sideways on narrow screens.</p>
+          </Stack>
+          <Surface tone="cocoa" radius="xl" padded class="chips-demo">
+            <ChipGroup label="Filter cakes">
+              <Chip label="All" value="all" pressed />
+              {collections.map((c) => <Chip label={c.label} value={c.id} />)}
+            </ChipGroup>
+          </Surface>
+        </Stack>
+      </Container>
+    </section>
+
+    <!-- Icon buttons -->
+    <section id="icons" class="sg-section" aria-labelledby="icons-h">
+      <Container>
+        <Stack gap={6}>
+          <h2 id="icons-h" class="sg-h2">Icon buttons</h2>
+          <Surface tone="espresso" radius="xl" padded>
+            <Cluster gap={4}>
+              <IconButton icon="menu" label="Open menu" />
+              <IconButton icon="search" label="Search cakes" />
+              <IconButton icon="arrow-left" label="Back" />
+              <IconButton icon="heart" variant="toggle" label="Save to favourites" />
+              <IconButton icon="heart" variant="toggle" pressed label="Saved to favourites" />
+              <IconButton icon="arrow-right" variant="ring" label="Open collection" />
+              <span class="t-small sg-muted icon-note"><Icon name="close" size={16} /> All controls are at least 44×44px.</span>
+            </Cluster>
+          </Surface>
+        </Stack>
+      </Container>
+    </section>
+
+    <!-- Surfaces & layout -->
+    <section id="surfaces" class="sg-section" aria-labelledby="surfaces-h">
+      <Container>
+        <Stack gap={6}>
+          <h2 id="surfaces-h" class="sg-h2">Surfaces &amp; layout primitives</h2>
+          <div class="surface-grid">
+            <Surface tone="espresso" radius="lg" padded class="surface-tile"><span>Espresso</span><code>--color-bg</code></Surface>
+            <Surface tone="cocoa" radius="lg" padded class="surface-tile"><span>Cocoa</span><code>--color-surface-cocoa</code></Surface>
+            <Surface tone="cherry" radius="lg" padded class="surface-tile"><span>Black cherry</span><code>--color-surface-cherry</code></Surface>
+            <Surface tone="ivory" radius="lg" padded class="surface-tile"><span>Ivory</span><code>--color-surface-ivory</code></Surface>
+            <Surface tone="card" radius="lg" padded class="surface-tile"><span>Card</span><code>--color-surface-card</code></Surface>
+            <Surface tone="cocoa" radius="arch" padded class="surface-tile surface-tile--arch"><span>Arch radius</span><code>--radius-arch</code></Surface>
+          </div>
+
+          <h3 class="sg-h3">Spacing (4px base)</h3>
+          <ul role="list" class="spacing">
+            {
+              spacing.map((s) => (
+                <li>
+                  <span class="spacing__bar" style={`width: var(--space-${s})`} />
+                  <code>--space-{s}</code>
+                  <span>{props.get(`--space-${s}`)}</span>
+                </li>
+              ))
+            }
+          </ul>
+
+          <h3 class="sg-h3">Radii and motion</h3>
+          <Cluster gap={4}>
+            {radii.map((r) => <span class="radius-demo" style={`border-radius: var(${r})`}><code>{r}</code></span>)}
+          </Cluster>
+          <ul role="list" class="token-list">
+            {motion.map((m) => <li><code>{m}</code> {props.get(m)}</li>)}
+            <li><code>--tap-min</code> {props.get("--tap-min")} (minimum control size)</li>
+            <li><code>--gutter</code> {props.get("--gutter")}</li>
+            <li><code>--gutter-wide</code> {props.get("--gutter-wide")}</li>
+          </ul>
+
+          <h3 class="sg-h3">Stack and Cluster</h3>
+          <div class="primitive-demo">
+            <Stack gap={3} class="primitive-demo__box">
+              <span>Stack</span><span>gap 3</span><span>vertical rhythm</span>
+            </Stack>
+            <Cluster gap={2} class="primitive-demo__box">
+              <span>Cluster</span><span>wraps</span><span>inline</span><span>groups</span>
+            </Cluster>
+          </div>
+        </Stack>
+      </Container>
+    </section>
+  </main>
+</BaseLayout>
+
+<script>
+  // Style-guide only: demonstrate single-select chips and the favourite toggle.
+  for (const group of document.querySelectorAll<HTMLElement>(".chip-group")) {
+    group.addEventListener("click", (event) => {
+      const chip = (event.target as HTMLElement).closest<HTMLButtonElement>(".chip");
+      if (!chip) return;
+      for (const other of group.querySelectorAll(".chip")) other.setAttribute("aria-pressed", String(other === chip));
+    });
+  }
+  for (const toggle of document.querySelectorAll<HTMLButtonElement>(".icon-button--toggle")) {
+    toggle.addEventListener("click", () => {
+      const pressed = toggle.getAttribute("aria-pressed") === "true";
+      toggle.setAttribute("aria-pressed", String(!pressed));
+      toggle.setAttribute("aria-label", pressed ? "Save to favourites" : "Saved to favourites");
+    });
+  }
+</script>
+
+<style>
+  .sg-header {
+    padding-block: var(--space-16) var(--space-10);
+    border-bottom: 1px solid var(--color-hairline);
+    background: radial-gradient(120% 90% at 85% 0%, var(--palette-cocoa-700) 0%, var(--color-bg) 60%);
+  }
+
+  .sg-toc {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-5);
+    font-size: var(--text-small);
+  }
+
+  .sg-toc a {
+    display: inline-block;
+    padding-block: var(--space-3);
+    color: var(--color-text-soft);
+  }
+
+  .sg-section {
+    padding-block: var(--space-12);
+    border-bottom: 1px solid var(--color-hairline);
+    scroll-margin-top: var(--space-4);
+  }
+
+  .sg-h2 {
+    font-size: var(--text-title);
+    line-height: var(--leading-title);
+  }
+
+  .sg-h3 {
+    font-family: var(--font-ui);
+    font-size: var(--text-small);
+    font-weight: var(--weight-ui);
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+    color: var(--color-text-eyebrow);
+  }
+
+  .sg-muted {
+    color: var(--color-text-soft);
+  }
+
+  .icon-note {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  code {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 0.85em;
+  }
+
+  /* Swatches */
+  .swatches {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+    gap: var(--space-4);
+  }
+
+  .swatch {
+    display: flex;
+    gap: var(--space-4);
+    align-items: center;
+  }
+
+  .swatch__chips {
+    display: flex;
+    flex: none;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    box-shadow: 0 0 0 1px var(--color-hairline);
+  }
+
+  .swatch__chip {
+    width: 2.75rem;
+    height: 4rem;
+  }
+
+  .swatch__chip--none {
+    background: repeating-linear-gradient(45deg, transparent 0 6px, var(--color-hairline) 6px 7px);
+  }
+
+  .swatch__meta {
+    display: grid;
+    gap: 2px;
+    font-size: var(--text-small);
+  }
+
+  .swatch__note {
+    color: var(--color-text-soft);
+  }
+
+  .delta {
+    margin-inline-start: var(--space-2);
+    padding: 1px 6px;
+    border-radius: var(--radius-pill);
+    background: var(--palette-cocoa-700);
+    font-size: 0.75rem;
+  }
+
+  .delta--big {
+    background: var(--palette-wine-700);
+  }
+
+  .sg-details summary {
+    cursor: pointer;
+    min-height: var(--tap-min);
+    display: flex;
+    align-items: center;
+    color: var(--color-text-soft);
+  }
+
+  .sg-details img {
+    width: 100%;
+    height: auto;
+    border-radius: var(--radius-md);
+  }
+
+  /* Tables */
+  .table-wrap {
+    overflow-x: auto;
+    border-radius: var(--radius-md);
+    box-shadow: 0 0 0 1px var(--color-hairline);
+  }
+
+  .sg-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--text-small);
+    min-width: 36rem;
+  }
+
+  .sg-table th,
+  .sg-table td {
+    padding: var(--space-3) var(--space-4);
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid var(--color-hairline);
+  }
+
+  .sg-table thead th {
+    color: var(--color-text-eyebrow);
+    font-weight: var(--weight-ui);
+  }
+
+  .sg-table tbody th {
+    font-weight: var(--weight-ui);
+  }
+
+  .sg-table code {
+    white-space: nowrap;
+  }
+
+  .sg-table__tokens {
+    display: block;
+    margin-top: 2px;
+    color: var(--color-text-soft);
+    font-weight: var(--weight-body);
+  }
+
+  .is-chosen {
+    background: color-mix(in srgb, var(--palette-wine-700) 45%, transparent);
+  }
+
+  .contrast-sample--edge {
+    width: 3rem;
+    height: 1.75rem;
+    border: 2px solid;
+    border-radius: var(--radius-pill);
+  }
+
+  .contrast-sample {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: var(--radius-sm);
+    font-weight: var(--weight-ui);
+    box-shadow: 0 0 0 1px var(--color-hairline);
+  }
+
+  /* Type specimens. Classes passed to child components need :global — page-scoped
+     styles do not reach a child component's root element. */
+  :global(.surface.surface--espresso.specimen) {
+    background: radial-gradient(110% 80% at 90% 10%, var(--palette-cocoa-700), var(--color-bg) 65%);
+  }
+
+  .specimen__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-2) var(--space-4);
+  }
+
+  .specimen__weight {
+    color: var(--color-text-soft);
+  }
+
+  .specimen__italic {
+    font-size: clamp(1.75rem, 1.3rem + 1.8vw, 2.5rem);
+    line-height: 1.15;
+  }
+
+  /* Font comparison */
+  .font-compare {
+    display: grid;
+    gap: var(--space-4);
+    padding: var(--space-6);
+    border-radius: var(--radius-xl);
+    background: #000;
+    overflow-x: auto;
+  }
+
+  .font-compare__row {
+    display: grid;
+    gap: var(--space-2);
+    justify-items: start;
+  }
+
+  .font-compare__row img {
+    max-width: none;
+  }
+
+  .font-compare__row figcaption {
+    font-size: 0.75rem;
+    color: var(--color-text-soft);
+  }
+
+  .font-compare__sample {
+    color: var(--palette-cream-100);
+    white-space: nowrap;
+  }
+
+  .font-compare__sample--desk {
+    font-size: 5.0625rem;
+    line-height: 1;
+    letter-spacing: var(--tracking-display);
+  }
+
+  .font-compare__sample--mobile {
+    font-family: var(--font-display);
+    font-size: 3.125rem;
+    line-height: 1;
+    letter-spacing: var(--tracking-display);
+  }
+
+  .font-compare__sample--body {
+    font-size: var(--text-lead);
+    color: var(--palette-sand-200);
+  }
+
+  /* Demos */
+  :global(.surface.surface--espresso.demo-dark) {
+    background: radial-gradient(100% 120% at 80% 0%, var(--palette-cocoa-700), var(--color-bg) 70%);
+  }
+
+  :global(.chips-demo) {
+    overflow: hidden;
+  }
+
+  .surface-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 11rem), 1fr));
+    gap: var(--space-4);
+  }
+
+  :global(.surface-tile) {
+    display: grid;
+    gap: var(--space-1);
+    min-height: 7rem;
+    align-content: end;
+    border: 1px solid var(--color-hairline);
+  }
+
+  /* Full-strength colour: 85% opacity dropped cream-on-card to 4.13:1 (axe). */
+  :global(.surface-tile) code {
+    font-size: 0.75rem;
+  }
+
+  :global(.surface-tile--arch) {
+    min-height: 10rem;
+  }
+
+  .spacing {
+    display: grid;
+    gap: var(--space-2);
+    font-size: var(--text-small);
+  }
+
+  .spacing li {
+    display: grid;
+    grid-template-columns: 6.5rem 6rem 1fr;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .spacing__bar {
+    height: 0.75rem;
+    border-radius: 2px;
+    background: var(--color-accent);
+  }
+
+  .radius-demo {
+    display: grid;
+    place-items: center;
+    width: 8rem;
+    height: 4.5rem;
+    background: var(--palette-cocoa-700);
+    border: 1px solid var(--color-hairline);
+    font-size: 0.75rem;
+  }
+
+  .token-list {
+    display: grid;
+    gap: var(--space-1);
+    font-size: var(--text-small);
+    color: var(--color-text-soft);
+  }
+
+  .primitive-demo {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+    gap: var(--space-4);
+  }
+
+  :global(.primitive-demo__box) {
+    padding: var(--space-4);
+    border: 1px dashed var(--palette-clay-400);
+    border-radius: var(--radius-md);
+  }
+
+  :global(.primitive-demo__box) span {
+    padding: var(--space-1) var(--space-3);
+    background: var(--palette-cocoa-700);
+    border-radius: var(--radius-sm);
+    font-size: var(--text-small);
+  }
+</style>

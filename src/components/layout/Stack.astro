@@ -1,0 +1,29 @@
+---
+// Vertical rhythm: children separated by one spacing token.
+
+import type { HTMLTag } from "astro/types";
+
+type Space = 1 | 2 | 3 | 4 | 5 | 6 | 8 | 10 | 12 | 16 | 20 | 24;
+
+interface Props {
+  as?: HTMLTag;
+  gap?: Space;
+  align?: "stretch" | "start" | "center";
+  class?: string;
+}
+
+const { as: Tag = "div", gap = 4, align = "stretch", class: className } = Astro.props;
+---
+
+<Tag class:list={["stack", className]} style={`--stack-gap: var(--space-${gap}); --stack-align: ${align}`}>
+  <slot />
+</Tag>
+
+<style>
+  .stack {
+    display: flex;
+    flex-direction: column;
+    align-items: var(--stack-align);
+    gap: var(--stack-gap);
+  }
+</style>

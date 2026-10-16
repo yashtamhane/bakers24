@@ -1,0 +1,26 @@
+/*
+ * Metric-matched local fallbacks, so text does not jump when the web fonts swap in.
+ * Values measured by scripts/fonts/fallback-metrics.mjs (re-run it if a font changes).
+ * Georgia/Arial exist on iOS, macOS and Windows; other platforms fall through to the
+ * generic family in the token stacks.
+ */
+
+/* Libre Bodoni Variable ← local("Georgia") */
+@font-face {
+  font-family: "Libre Bodoni Fallback";
+  src: local("Georgia");
+  size-adjust: 101.46%;
+  ascent-override: 90.68%;
+  descent-override: 32.53%;
+  line-gap-override: 0%;
+}
+
+/* DM Sans Variable ← local("Arial") */
+@font-face {
+  font-family: "DM Sans Fallback";
+  src: local("Arial");
+  size-adjust: 103.43%;
+  ascent-override: 95.72%;
+  descent-override: 29.97%;
+  line-gap-override: 0%;
+}

@@ -1,0 +1,192 @@
+---
+// Homepage first-screen stage: the full-height atmosphere behind the site header and the hero.
+// Built from independent layers (CSS light, blurred SVG florals, an SVG petal, gold specks,
+// grain); no flattened crop of the mockup. The header stays in normal flow, so it can grow with
+// text zoom; the atmosphere still runs behind it because it belongs to this wrapper.
+//
+// Measurements (reference at 390px wide, below the 47px status bar; content height 770px) are
+// expressed as shares of --hero-h so 812/844/932px-tall phones keep the composition.
+---
+
+<div class="home-stage">
+  <div class="hero__atmosphere" aria-hidden="true">
+    <!-- Out-of-focus florals and warm light. Stretched to the hero box: blurred shapes tolerate it. -->
+    <svg class="hero__florals" viewBox="0 0 390 770" preserveAspectRatio="none" focusable="false">
+      <defs>
+        <filter id="hero-blur-far" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="14" /></filter>
+        <filter id="hero-blur-mid" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="7" /></filter>
+        <filter id="hero-blur-near" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="3.2" /></filter>
+        <filter id="hero-glow" x="-200%" y="-200%" width="500%" height="500%"><feGaussianBlur stdDeviation="1.1" /></filter>
+        <radialGradient id="hero-bloom-red" cx="0.5" cy="0.45" r="0.6">
+          <stop offset="0" stop-color="#a4283a" />
+          <stop offset="0.6" stop-color="#7a1626" />
+          <stop offset="1" stop-color="#4a0c16" />
+        </radialGradient>
+        <radialGradient id="hero-petal-pink" cx="0.35" cy="0.3" r="0.8">
+          <stop offset="0" stop-color="#ef8f9c" />
+          <stop offset="0.5" stop-color="#cf4560" />
+          <stop offset="1" stop-color="#861b35" />
+        </radialGradient>
+        <!-- One bloom = rotated, overlapping petals; reused at different sizes and focus. -->
+        <g id="hero-bloom">
+          <ellipse cx="0" cy="-14" rx="16" ry="13" />
+          <ellipse cx="13" cy="-4" rx="15" ry="13" transform="rotate(30)" />
+          <ellipse cx="8" cy="12" rx="15" ry="12" transform="rotate(-20)" />
+          <ellipse cx="-10" cy="11" rx="14" ry="12" transform="rotate(15)" />
+          <ellipse cx="-14" cy="-3" rx="13" ry="14" />
+          <ellipse cx="0" cy="0" rx="9" ry="8" opacity="0.6" />
+        </g>
+      </defs>
+
+      <!-- Warm light: amber glow upper right, pale window light down the right edge (kept right of the copy) -->
+      <g filter="url(#hero-blur-far)">
+        <ellipse cx="292" cy="150" rx="110" ry="80" fill="#6b3a1e" opacity="0.62" />
+        <ellipse cx="394" cy="320" rx="38" ry="140" fill="#c99f83" opacity="0.62" />
+        <ellipse cx="398" cy="450" rx="30" ry="80" fill="#e1bfa3" opacity="0.45" />
+        <ellipse cx="190" cy="60" rx="130" ry="40" fill="#3a1f12" opacity="0.6" />
+      </g>
+
+      <!-- Upper left: deep crimson blooms, far out of focus -->
+      <g filter="url(#hero-blur-mid)" fill="url(#hero-bloom-red)">
+        <use href="#hero-bloom" transform="translate(10 150) scale(1.5)" opacity="0.9" />
+        <use href="#hero-bloom" transform="translate(50 122) scale(0.9) rotate(40)" opacity="0.7" />
+        <use href="#hero-bloom" transform="translate(-2 214) scale(1.4) rotate(-25)" opacity="0.8" />
+        <use href="#hero-bloom" transform="translate(30 268) scale(0.8) rotate(70)" opacity="0.55" />
+      </g>
+
+      <!-- Right edge: blush bloom behind the cake -->
+      <g filter="url(#hero-blur-far)">
+        <use href="#hero-bloom" transform="translate(372 446) scale(1.3) rotate(20)" fill="#b8506b" opacity="0.55" />
+      </g>
+
+      <!-- Lower left: red blooms, mid focus -->
+      <g filter="url(#hero-blur-mid)" fill="url(#hero-bloom-red)">
+        <use href="#hero-bloom" transform="translate(22 572) scale(1.6) rotate(10)" opacity="0.9" />
+        <use href="#hero-bloom" transform="translate(-6 660) scale(1.7) rotate(-30)" opacity="0.85" />
+        <use href="#hero-bloom" transform="translate(78 700) scale(1.1) rotate(55)" opacity="0.7" />
+      </g>
+
+      <!-- Pink rose beside the cake, close to focus -->
+      <g filter="url(#hero-blur-near)" fill="url(#hero-petal-pink)" transform="translate(176 616)">
+        <use href="#hero-bloom" transform="scale(2.2) rotate(8)" opacity="0.95" />
+        <use href="#hero-bloom" transform="scale(1.35) rotate(-28)" fill="#e0707f" opacity="0.5" />
+        <use href="#hero-bloom" transform="scale(0.7) rotate(45)" fill="#b6466a" opacity="0.8" />
+      </g>
+
+      <!-- Gold dust around the cake -->
+      <g fill="#f4c983" filter="url(#hero-glow)">
+        <circle cx="216" cy="516" r="1.6" opacity="0.9" />
+        <circle cx="241" cy="502" r="1.1" opacity="0.8" />
+        <circle cx="262" cy="538" r="2" opacity="0.85" />
+        <circle cx="303" cy="497" r="1.3" opacity="0.7" />
+        <circle cx="331" cy="524" r="1.8" opacity="0.8" />
+        <circle cx="205" cy="561" r="1.2" opacity="0.7" />
+        <circle cx="352" cy="553" r="1.4" opacity="0.75" />
+        <circle cx="152" cy="606" r="1.1" opacity="0.6" />
+        <circle cx="124" cy="584" r="1.5" opacity="0.65" />
+        <circle cx="282" cy="476" r="1" opacity="0.6" />
+      </g>
+    </svg>
+
+    <!-- The single in-focus rose petal crossing the top-right edge: broad, shaded, gently creased -->
+    <svg class="hero__petal" viewBox="0 0 112 150" focusable="false">
+      <defs>
+        <linearGradient id="hero-petal" x1="0.05" y1="0.05" x2="0.85" y2="1">
+          <stop offset="0" stop-color="#ef8aa1" />
+          <stop offset="0.35" stop-color="#df4f72" />
+          <stop offset="0.75" stop-color="#bb2a4d" />
+          <stop offset="1" stop-color="#8c1532" />
+        </linearGradient>
+        <linearGradient id="hero-petal-sheen" x1="0" y1="0" x2="1" y2="0.7">
+          <stop offset="0" stop-color="#ffe0e6" stop-opacity="0.7" />
+          <stop offset="1" stop-color="#ffe0e6" stop-opacity="0" />
+        </linearGradient>
+        <linearGradient id="hero-petal-shade" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#5e0d22" stop-opacity="0" />
+          <stop offset="1" stop-color="#5e0d22" stop-opacity="0.55" />
+        </linearGradient>
+      </defs>
+      <path d="M2 8C30 0 70 16 112 62v88C100 128 80 100 56 82 30 62 12 40 2 8Z" fill="url(#hero-petal)" />
+      <path d="M2 8C30 0 70 16 112 62v88C100 128 80 100 56 82 30 62 12 40 2 8Z" fill="url(#hero-petal-shade)" />
+      <path d="M8 10C34 8 70 26 104 64 76 44 42 26 8 10Z" fill="url(#hero-petal-sheen)" />
+      <path d="M14 22C40 40 70 66 110 112" fill="none" stroke="#7e1230" stroke-opacity="0.35" stroke-width="1" />
+    </svg>
+  </div>
+  <slot />
+</div>
+
+<style>
+  .home-stage {
+    /* px minimum (not rem) so the atmosphere keeps its geometry when text is enlarged. */
+    --hero-h: max(100vh, 640px);
+    --copy-inset: clamp(1.25rem, 14.36vw, 3.875rem); /* 56px at 390 */
+    --headline-size: clamp(2.5rem, 12.8vw, 3.125rem);
+    --cap-ratio: 0.06; /* h1 box top → cap top, as a share of font-size (tuned by measurement) */
+
+    position: relative;
+    isolation: isolate;
+    overflow: clip;
+    min-height: var(--hero-h);
+    /* Reserve the cake zone so copy can grow (text zoom) without running into the image. */
+    padding-bottom: calc(var(--hero-h) * 0.308);
+    background:
+      radial-gradient(75% 40% at 80% 20%, rgb(104 56 28 / 0.55), transparent 72%),
+      radial-gradient(60% 32% at 86% 88%, rgb(126 56 28 / 0.5), transparent 72%),
+      radial-gradient(55% 30% at 10% 52%, rgb(20 11 6 / 0.6), transparent 75%),
+      linear-gradient(180deg, #170d07 0%, #1d1009 35%, #211209 65%, #2a160c 100%);
+  }
+
+  @supports (height: 100svh) {
+    .home-stage {
+      --hero-h: max(100svh, 640px);
+    }
+  }
+
+  /* Vignette and fine grain over the atmosphere, under the copy. */
+  .home-stage::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(130% 95% at 55% 42%, transparent 58%, rgb(6 3 1 / 0.55) 100%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 .9 0 0 0 0 .8 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity: 0.09;
+  }
+
+  .hero__atmosphere {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+  }
+
+  .hero__florals {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: var(--hero-h);
+  }
+
+  /* Petal box: x 280–392, y 150–300 of the 390×770 reference content area. */
+  .hero__petal {
+    position: absolute;
+    top: calc(var(--hero-h) * 0.195);
+    right: -0.5vw;
+    width: 28.7vw;
+    height: auto;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .hero__petal {
+      animation: hero-drift 900ms var(--ease-out) 60ms both;
+    }
+
+    @keyframes hero-drift {
+      from {
+        opacity: 0;
+        transform: translate(10px, -8px) rotate(4deg);
+      }
+    }
+  }
+</style>

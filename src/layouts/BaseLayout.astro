@@ -1,0 +1,74 @@
+---
+// Document shell shared by every page.
+// Fonts are self-hosted (no third-party requests). Each @font-face is split by unicode-range,
+// so the ₹ (latin-ext) and italic files download only on pages that use them. The two Latin
+// files every page needs first are preloaded; the URLs resolve to the same hashed assets the
+// @font-face rules use.
+
+import "@fontsource-variable/libre-bodoni";
+import "@fontsource-variable/libre-bodoni/wght-italic.css";
+import "@fontsource-variable/dm-sans";
+import "../styles/base.css";
+import "../styles/fonts.css";
+import "../styles/tokens.css";
+import "../styles/typography.css";
+import libreBodoniLatin from "@fontsource-variable/libre-bodoni/files/libre-bodoni-latin-wght-normal.woff2?url";
+import dmSansLatin from "@fontsource-variable/dm-sans/files/dm-sans-latin-wght-normal.woff2?url";
+
+interface Props {
+  title: string;
+  description?: string;
+  /** Internal and work-in-progress pages must not be indexed. */
+  noindex?: boolean;
+  /** Id of the main content, target of the skip link. */
+  mainId?: string;
+}
+
+const {
+  title,
+  description = "Concept proposal for Baker’s 24, a pure-veg cake shop in Pimpri, Pune.",
+  noindex = false,
+  mainId = "main",
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en-IN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#120a06" />
+    <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    <link rel="preload" href={libreBodoniLatin} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={dmSansLatin} as="font" type="font/woff2" crossorigin />
+    <slot name="head" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <a class="skip-link" href={`#${mainId}`}>Skip to content</a>
+    <slot />
+  </body>
+</html>
+
+<style>
+  .skip-link {
+    position: absolute;
+    z-index: 100;
+    top: var(--space-2);
+    left: var(--space-2);
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-pill);
+    background: var(--palette-cream-100);
+    color: var(--palette-ink-950);
+    font-weight: var(--weight-ui);
+    text-decoration: none;
+    transform: translateY(-200%);
+  }
+
+  .skip-link:focus-visible {
+    transform: none;
+    outline-color: var(--palette-wine-700);
+  }
+</style>

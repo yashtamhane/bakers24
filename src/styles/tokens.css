@@ -1,0 +1,153 @@
+/*
+ * Baker's 24 design tokens.
+ *
+ * Palette values are tuned against colours sampled from references/approved-design.png
+ * (see src/styleguide/reference-colors.json and the /_styleguide colour table).
+ * Where a sampled colour failed WCAG AA for its job, the token is the nearest passing value
+ * and the deviation is listed in the style guide. Do not hand-edit a value without
+ * re-running `npm test` (tests/unit/contrast.test.ts audits every documented pairing).
+ */
+
+@layer tokens {
+  :root {
+    /* ---------- Palette (raw) ---------- */
+    --palette-espresso-950: #120a06; /* ref hero shadow #120803, backdrop #150B06 */
+    --palette-espresso-900: #1a110c; /* ref menu backdrop #1A130E */
+    --palette-cocoa-800: #2a180f;
+    --palette-cocoa-700: #3c2419; /* ref mobile hero #3C1E11, custom backdrop #3E271C */
+    --palette-cocoa-600: #4e2d1e; /* ref chocolate card #4E2D1B */
+    --palette-cherry-800: #511e29; /* spec value; no clean sample exists in the reference */
+    --palette-wine-700: #66121b; /* ref CTA #68121C (desktop) / #621118 (mobile) */
+    --palette-wine-600: #7a1728; /* ref custom-cake CTA #7A1728 */
+    --palette-wine-500: #8c203a; /* spec CTA value, used for hover */
+    --palette-clay-500: #8a4f3b; /* ref menu card #945640, darkened for AA */
+    --palette-clay-400: #8a6656; /* chip and hairline borders (3:1 non-text) */
+    --palette-rosegold-400: #e0a077; /* ref accent “Here.” #E29D6E, “Better” #DEA07B */
+    --palette-copper-700: #94532f; /* ref ivory eyebrow #D39A74, darkened for AA */
+    --palette-taupe-300: #c9b398; /* ref hero eyebrow #C1AC91 */
+    --palette-sand-200: #dccfc4; /* ref hero body #CAC7C2, warmed */
+    --palette-cream-100: #f6e0cb; /* ref headline ivory #F7E2CF / #F4DABC */
+    --palette-blush-200: #f5d3c4; /* ref active chip #F6D6C5, selected tile #F5D2C4 */
+    --palette-ivory-50: #fceadc; /* ref ivory section #FCEADC */
+    --palette-ink-950: #140a07; /* ref ivory heading #100806 */
+    --palette-ink-600: #745f51; /* ref ivory body #786355 */
+
+    /* ---------- Semantic colour ---------- */
+    --color-bg: var(--palette-espresso-950);
+    --color-bg-raised: var(--palette-espresso-900);
+    --color-surface-cocoa: var(--palette-cocoa-700);
+    --color-surface-cocoa-deep: var(--palette-cocoa-800);
+    --color-surface-cherry: var(--palette-cherry-800);
+    --color-surface-ivory: var(--palette-ivory-50);
+    --color-surface-card: var(--palette-clay-500);
+
+    --color-text: var(--palette-cream-100);
+    --color-text-soft: var(--palette-sand-200);
+    --color-text-eyebrow: var(--palette-taupe-300);
+    --color-accent: var(--palette-rosegold-400);
+
+    --color-text-on-ivory: var(--palette-ink-950);
+    --color-text-on-ivory-soft: var(--palette-ink-600);
+    --color-eyebrow-on-ivory: var(--palette-copper-700);
+
+    --color-cta: var(--palette-wine-700);
+    --color-cta-hover: var(--palette-wine-500);
+    --color-cta-text: var(--palette-cream-100);
+    --color-cta-edge: color-mix(in srgb, var(--palette-rosegold-400) 55%, transparent);
+
+    --color-chip-bg: color-mix(in srgb, var(--palette-cocoa-600) 72%, transparent);
+    --color-chip-border: var(--palette-clay-400);
+    --color-chip-text: var(--palette-cream-100);
+    --color-chip-active-bg: var(--palette-blush-200);
+    --color-chip-active-text: var(--palette-wine-700);
+
+    --color-hairline: color-mix(in srgb, var(--palette-cream-100) 18%, transparent);
+    --color-focus: var(--palette-rosegold-400);
+    --color-focus-on-ivory: var(--palette-wine-700);
+    --color-focus-on-card: var(--palette-cream-100);
+
+    /* Cards over photography: the glass fill is only valid over backdrops graded to be no
+       brighter than --color-backdrop-limit (enforced by scrims in page layouts). */
+    --color-card-glass: color-mix(in srgb, var(--palette-clay-500) 88%, transparent);
+    --color-backdrop-limit: #7a5444;
+
+    /* ---------- Typography ---------- */
+    --font-display: "Libre Bodoni Variable", "Libre Bodoni Fallback", Georgia, serif;
+    --font-ui: "DM Sans Variable", "DM Sans Fallback", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+    /* Fluid display size interpolates between the 390px and 1440px reference panels.
+       Endpoints are measured: font-size giving the same ink height as the reference
+       “Moments” (49.7px mobile, 81.2px desktop). */
+    --text-display: clamp(3.125rem, 2.406rem + 2.952vw, 5.0625rem); /* 50px → 81px */
+    --text-title: clamp(2.125rem, 1.7rem + 1.6vw, 3rem); /* 34px → 48px */
+    --text-card-title: 1.25rem; /* 20px */
+    --text-price: 1.375rem; /* 22px */
+    --text-lead: 1.0625rem; /* 17px */
+    --text-body: 1rem;
+    --text-small: 0.875rem;
+    --text-eyebrow: 0.75rem;
+    --text-button: 1rem;
+
+    --leading-display: 0.99; /* measured line pitch: 0.98 (mobile) – 1.0 (desktop) */
+    --leading-title: 1.05;
+    --leading-snug: 1.25;
+    --leading-body: 1.55;
+
+    /* Libre Bodoni's lightest weight. The reference strokes are lighter still
+       (ink coverage 0.245 vs 0.278), a known deviation. */
+    --weight-display: 400;
+    --weight-display-strong: 550;
+    --weight-body: 400;
+    --weight-ui: 500;
+
+    --tracking-display: -0.01em;
+    --tracking-eyebrow: 0.28em;
+
+    /* ---------- Space (4px base) ---------- */
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-5: 1.25rem;
+    --space-6: 1.5rem;
+    --space-8: 2rem;
+    --space-10: 2.5rem;
+    --space-12: 3rem;
+    --space-16: 4rem;
+    --space-20: 5rem;
+    --space-24: 6rem;
+
+    --gutter: clamp(1.25rem, 5vw, 2rem);
+    --gutter-wide: clamp(1.25rem, 7.4vw, 6.75rem); /* desktop copy sits ~107px in at 1440 */
+    --container-max: 90rem;
+    --header-h: 7rem; /* mobile header incl. stacked logo, excluding the safe-area inset */
+    --measure: 34ch;
+
+    /* ---------- Shape ---------- */
+    --radius-sm: 0.625rem;
+    --radius-md: 1rem; /* card image */
+    --radius-lg: 1.25rem; /* menu card */
+    --radius-xl: 2rem;
+    --radius-arch: 3rem; /* editorial tile tops */
+    --radius-pill: 999px;
+
+    --shadow-card: 0 18px 40px -18px rgb(8 3 1 / 0.65), 0 2px 6px rgb(8 3 1 / 0.35);
+    --shadow-cta: 0 10px 24px -10px rgb(60 6 14 / 0.75);
+
+    --tap-min: 2.75rem; /* 44px */
+
+    /* ---------- Motion ---------- */
+    --duration-fast: 150ms;
+    --duration-base: 250ms;
+    --duration-slow: 400ms;
+    --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :root {
+      --duration-fast: 0ms;
+      --duration-base: 0ms;
+      --duration-slow: 0ms;
+    }
+  }
+}
