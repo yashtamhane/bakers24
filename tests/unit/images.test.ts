@@ -19,7 +19,9 @@ describe("image provenance", () => {
     }
   });
 
-  it("keeps the hero cake flagged as temporary until real photography is supplied", () => {
-    expect(images.heroCake.kind).toBe("temporary");
+  it("keeps the hero cake and collection doors flagged as temporary until real photography is supplied", () => {
+    for (const img of [images.heroCake, images.collectionBirthday, images.collectionCustom, images.collectionSeasonal]) {
+      expect(img.kind, img.id).toBe("temporary");
+    }
   });
 });

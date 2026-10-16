@@ -1,0 +1,165 @@
+---
+// One editorial collection “door” from the approved reference (the tall tiles beside
+// “For Every Beautiful Moment”): photograph fading into a deep cocoa base, a two-line serif
+// title and a ringed arrow. The whole tile is one link, named by its title only.
+// The organic top edge comes from a clipPath defined once by HomeCollections
+// (#door-shape-<id>); the link itself stays rectangular so its focus ring is never clipped.
+
+import { Image } from "astro:assets";
+import Icon from "../ui/Icon.astro";
+import type { HomeCollection } from "../../data/home-collections";
+
+interface Props {
+  collection: HomeCollection;
+}
+
+const { collection } = Astro.props;
+const { id, title, href, image } = collection;
+const titleId = `door-${id}-title`;
+---
+
+<li class:list={["door", `door--${id}`]} data-image-kind={image.kind}>
+  <a class="door__link" href={href} aria-labelledby={titleId}>
+    <div class="door__frame" style={`clip-path: url(#door-shape-${id})`}>
+      <Image
+        src={image.src}
+        alt={image.alt}
+        widths={[image.src.width]}
+        sizes="(max-width: 40rem) 80vw, 20rem"
+        loading="lazy"
+        decoding="async"
+        class="door__img"
+      />
+      <div class="door__body">
+        <h3 id={titleId} class="door__title">
+          <span class="door__line">{title[0]}</span>
+          <span class="door__line">{title[1]}</span>
+        </h3>
+        <span class="door__arrow" aria-hidden="true"><Icon name="arrow-right" size={18} /></span>
+      </div>
+    </div>
+  </a>
+  {image.kind === "temporary" && <p class="door__label">{image.label}</p>}
+</li>
+
+<style>
+  .door {
+    position: relative;
+    /* ~80% of the column, alternating sides; never narrower than 16rem, so at large text sizes
+       the tile widens to the full column instead of crushing the title. */
+    width: min(100%, max(80%, 16rem));
+  }
+
+  .door:nth-child(even) {
+    margin-inline-start: auto;
+  }
+
+  .door__link {
+    display: block;
+    border-radius: var(--radius-xl);
+    color: var(--color-text);
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .door__link:focus-visible {
+    outline-color: var(--color-focus-on-ivory);
+    outline-offset: 4px;
+  }
+
+  .door__frame {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    /* Tall portrait tile; grows taller rather than clipping if text is enlarged. */
+    aspect-ratio: 4 / 5;
+    /* Deep cocoa base the photograph fades into (reference tile bases run #2A170D–#4A2C1C). */
+    background: linear-gradient(180deg, #5b3b29 0%, #3a2217 55%, #20110a 100%);
+    box-shadow: var(--shadow-card);
+  }
+
+  .door__img {
+    position: absolute;
+    inset: 0 0 auto;
+    width: 100%;
+    height: 80%;
+    object-fit: cover;
+    object-position: 50% 30%;
+    -webkit-mask-image: linear-gradient(180deg, #000 58%, transparent 100%);
+    mask-image: linear-gradient(180deg, #000 58%, transparent 100%);
+    transition: transform var(--duration-slow) var(--ease-out);
+  }
+
+  .door__body {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: clamp(1rem, 7%, 1.5rem);
+    padding-top: var(--space-16);
+    /* Scrim under the title so it keeps AA contrast over any photograph (tested in e2e). */
+    background: linear-gradient(0deg, rgb(20 10 5 / 0.88) 0%, rgb(20 10 5 / 0.62) 55%, transparent 100%);
+  }
+
+  .door__title {
+    min-width: 0;
+    font-size: 1.75rem;
+    line-height: 1.08;
+    color: var(--color-text);
+    overflow-wrap: break-word;
+    hyphens: auto;
+    text-shadow: 0 1px 12px rgb(12 6 3 / 0.5);
+  }
+
+  .door__line {
+    display: block;
+  }
+
+  /* The reference's ringed arrow: decorative here, because the whole tile is the link. */
+  .door__arrow {
+    flex: none;
+    display: inline-grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: var(--radius-pill);
+    border: 1px solid color-mix(in srgb, var(--palette-cream-100) 80%, transparent);
+    color: var(--color-text);
+    transition:
+      background-color var(--duration-base) var(--ease-out),
+      transform var(--duration-base) var(--ease-out);
+  }
+
+  @media (hover: hover) {
+    .door__link:hover .door__img {
+      transform: scale(1.03);
+    }
+
+    .door__link:hover .door__arrow {
+      background: color-mix(in srgb, var(--palette-cream-100) 14%, transparent);
+      transform: translateX(3px);
+    }
+  }
+
+  .door__link:active .door__frame {
+    transform: scale(0.99);
+  }
+
+  /* Same treatment as the hero's temporary-image label. Outside the link, so the link's name
+     stays the collection title; pointer-events off so taps on it still reach the tile. */
+  .door__label {
+    position: absolute;
+    top: 22%; /* inside every arch shape, still over the photograph */
+    right: var(--space-4);
+    padding: 0.125rem 0.5rem;
+    border-radius: var(--radius-pill);
+    background: rgb(18 10 6 / 0.82);
+    color: var(--color-text);
+    font-size: 0.6875rem;
+    font-weight: var(--weight-ui);
+    letter-spacing: 0.02em;
+    pointer-events: none;
+  }
+</style>

@@ -1,0 +1,156 @@
+---
+// Quiet site footer (PAGE_BLUEPRINTS §1): the reference's closing line “A Little Cake / A Lot of
+// Love”, the identity, where to find the shop, how to reach it, and the concept-demonstration
+// notice CONTENT.md requires. Facts come from src/data/business.ts; unconfirmed details
+// (hours, email, delivery, map pin) are intentionally absent.
+
+import Logo from "../brand/Logo.astro";
+import Icon from "../ui/Icon.astro";
+import { business, conceptNotice } from "../../data/business";
+---
+
+<footer class="site-footer">
+  <p class="site-footer__motto">
+    <span class="site-footer__motto-line site-footer__motto-line--ruled">A Little Cake</span>
+    <span class="site-footer__motto-line">A Lot of Love</span>
+  </p>
+
+  <Logo class="site-footer__logo" />
+
+  <address class="site-footer__contact">
+    <div class="site-footer__group">
+      <h2 class="t-eyebrow site-footer__heading">Visit</h2>
+      <p class="site-footer__address">
+        {business.address.lines.map((line) => <span class="site-footer__address-line">{line}</span>)}
+      </p>
+    </div>
+
+    <div class="site-footer__group">
+      <h2 class="t-eyebrow site-footer__heading">Say hello</h2>
+      <ul class="site-footer__links" role="list">
+        <li>
+          <a class="site-footer__link" href={business.whatsapp.href}>
+            <Icon name="whatsapp" size={20} />
+            <span><span class="visually-hidden">WhatsApp </span>{business.whatsapp.display}</span>
+          </a>
+        </li>
+        <li>
+          <a class="site-footer__link" href={business.instagram.href}>
+            <span><span class="visually-hidden">Instagram </span>{business.instagram.handle}</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </address>
+
+  <p class="site-footer__notice">{conceptNotice}</p>
+</footer>
+
+<style>
+  .site-footer {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-10);
+    padding: var(--space-10) var(--gutter) calc(var(--space-12) + env(safe-area-inset-bottom, 0px));
+    background:
+      radial-gradient(90% 45% at 100% 100%, rgb(81 30 41 / 0.45), transparent 70%),
+      var(--color-bg);
+    color: var(--color-text);
+  }
+
+  /* Reference: italic display serif, a fine rule after the first line, second line set in. */
+  .site-footer__motto {
+    display: flex;
+    flex-direction: column;
+    font-family: var(--font-display);
+    font-size: 1.875rem;
+    font-style: italic;
+    line-height: 1.2;
+    color: var(--color-text);
+  }
+
+  .site-footer__motto-line--ruled {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+  }
+
+  .site-footer__motto-line--ruled::after {
+    content: "";
+    flex: none;
+    width: 2.5rem;
+    height: 1px;
+    background: var(--palette-champagne-300);
+    opacity: 0.8;
+  }
+
+  .site-footer__motto-line:last-child {
+    padding-inline-start: 0.75em;
+  }
+
+  .site-footer :global(.site-footer__logo) {
+    align-items: flex-start;
+    text-align: start;
+  }
+
+  .site-footer__contact {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+    gap: var(--space-8) var(--space-6);
+    width: 100%;
+    font-style: normal;
+  }
+
+  .site-footer__heading {
+    margin-bottom: var(--space-3);
+    letter-spacing: var(--tracking-eyebrow);
+  }
+
+  .site-footer__address {
+    color: var(--color-text-soft);
+    font-size: var(--text-small);
+    line-height: 1.6;
+  }
+
+  .site-footer__address-line {
+    display: block;
+  }
+
+  .site-footer__links {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .site-footer__link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: var(--tap-min);
+    color: var(--color-text);
+    font-size: var(--text-small);
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, var(--color-accent) 60%, transparent);
+    text-underline-offset: 0.3em;
+    overflow-wrap: anywhere;
+    transition: text-decoration-color var(--duration-base) var(--ease-out);
+  }
+
+  .site-footer__link:hover {
+    text-decoration-color: var(--color-accent);
+  }
+
+  .site-footer__link :global(.icon) {
+    color: var(--color-accent);
+  }
+
+  .site-footer__notice {
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--color-hairline);
+    width: 100%;
+    color: var(--color-text-eyebrow);
+    font-size: 0.8125rem;
+    line-height: 1.5;
+  }
+</style>

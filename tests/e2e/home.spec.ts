@@ -2,7 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import sharp from "sharp";
 
-// M1 covers the mobile first screen only; the desktop homepage is M5.
+// M1 covers the mobile first screen, M2 the rest of the mobile homepage; the desktop homepage is M5.
 test.skip(({ viewport }) => (viewport?.width ?? 0) > 500, "Desktop homepage is designed in M5");
 
 const HOME = "/";
@@ -34,6 +34,7 @@ const parseRgb = (css: string) => (css.match(/[\d.]+/g) ?? []).slice(0, 3).map(N
  */
 async function backgroundContrast(page: Page, selector: string) {
   const el = page.locator(selector).first();
+  await el.scrollIntoViewIfNeeded(); // below-the-fold sections: clips are viewport-relative
   const color = await el.evaluate((n) => getComputedStyle(n).color);
   const b = await box(el);
   const capture = async (css: string) => {
@@ -217,5 +218,211 @@ test.describe("homepage first screen (M1)", () => {
     await page.emulateMedia({ reducedMotion: "no-preference" });
     await open(page);
     expect(await page.locator(".hero__cake").evaluate((n) => getComputedStyle(n).animationName)).not.toBe("none");
+  });
+});
+
+const SIZES = [
+  { width: 320, height: 568 },
+  { width: 375, height: 667 },
+  { width: 375, height: 812 },
+  { width: 390, height: 844 },
+  { width: 430, height: 932 },
+];
+
+const DOORS = [
+  { name: "Birthday Cakes", href: "/cakes/" },
+  { name: "Custom Cakes", href: "/custom-cakes/" },
+  { name: "Seasonal Delights", href: "/seasonal/" },
+];
+
+/** Every element with its own text below the hero whose box pokes past the viewport edges. */
+async function textOutsideViewport(page: Page) {
+  return page.evaluate(() => {
+    const vw = document.documentElement.clientWidth;
+    const out: string[] = [];
+    for (const el of document.querySelectorAll<HTMLElement>(".collections *, .site-footer *")) {
+      const ownText = [...el.childNodes].some((n) => n.nodeType === Node.TEXT_NODE && n.textContent!.trim());
+      if (!ownText) continue;
+      const r = el.getBoundingClientRect();
+      if (r.width <= 1) continue; // visually-hidden screen-reader text
+      if (r.left < -0.5 || r.right > vw + 0.5 || el.scrollWidth > el.clientWidth + 1) out.push(`${el.className || el.tagName}: “${el.textContent!.trim().slice(0, 30)}” ${r.left.toFixed(0)}–${r.right.toFixed(0)}`);
+    }
+    return out;
+  });
+}
+
+test.describe("homepage below the first screen (M2)", () => {
+  test("ivory interlude: eyebrow, heading, description and call to action", async ({ page }) => {
+    await open(page);
+    const section = page.getByRole("region", { name: "For Every Beautiful Moment" });
+    await expect(section).toHaveAttribute("data-surface", "ivory");
+    await expect(section.getByRole("heading", { level: 2 })).toHaveAccessibleName("For Every Beautiful Moment");
+    await expect(section.getByText("Our Cakes", { exact: true })).toBeVisible();
+    await expect(section.locator(".collections__lead")).toHaveText(
+      "From birthdays to anniversaries, custom creations to seasonal delights, find a cake that feels just right.",
+    );
+    await expect(section.getByRole("link", { name: "Explore Collection" })).toHaveAttribute("href", "/cakes/");
+  });
+
+  test("three collection doors in the reference order, each one link named by its title", async ({ page }) => {
+    await open(page);
+    const list = page.getByRole("list", { name: "Collections" });
+    const items = list.getByRole("listitem");
+    await expect(items).toHaveCount(3);
+    for (const [i, door] of DOORS.entries()) {
+      const item = items.nth(i);
+      const link = item.getByRole("link");
+      await expect(link).toHaveCount(1);
+      await expect(link).toHaveAccessibleName(door.name);
+      await expect(link).toHaveAttribute("href", door.href);
+      await expect(item.getByRole("heading", { level: 3 })).toHaveAccessibleName(door.name);
+    }
+  });
+
+  test("labels every temporary collection image and gives it alt text", async ({ page }) => {
+    await open(page);
+    const doors = page.locator(".door");
+    await expect(doors).toHaveCount(3);
+    for (let i = 0; i < 3; i++) {
+      const door = doors.nth(i);
+      await expect(door).toHaveAttribute("data-image-kind", "temporary");
+      await door.scrollIntoViewIfNeeded();
+      await expect(door.getByText("Temporary image")).toBeVisible();
+      expect((await door.locator("img").getAttribute("alt"))!.length).toBeGreaterThan(10);
+    }
+  });
+
+  test("collection images load (lazily) without failures", async ({ page }) => {
+    const failed: string[] = [];
+    page.on("response", (r) => r.status() >= 400 && r.url().includes("/_astro/") && failed.push(r.url()));
+    await open(page);
+    for (const img of await page.locator(".door img").all()) {
+      await img.scrollIntoViewIfNeeded();
+      await expect.poll(() => img.evaluate((n) => (n as HTMLImageElement).complete && (n as HTMLImageElement).naturalWidth > 0)).toBe(true);
+    }
+    expect(failed).toEqual([]);
+  });
+
+  test("landmarks: banner and footer outside the single main, which holds every section", async ({ page }) => {
+    await open(page);
+    await expect(page.getByRole("main")).toHaveCount(1);
+    const main = page.getByRole("main");
+    await expect(main.getByRole("heading", { level: 1 })).toHaveCount(1);
+    await expect(main.getByRole("region", { name: "For Every Beautiful Moment" })).toHaveCount(1);
+    await expect(page.getByRole("banner")).toHaveCount(1);
+    await expect(page.getByRole("contentinfo")).toHaveCount(1);
+    expect(await page.evaluate(() => !!document.querySelector("main footer, main header.site-header"))).toBe(false);
+  });
+
+  test("headings never skip a level", async ({ page }) => {
+    await open(page);
+    const levels = await page.locator("h1, h2, h3, h4, h5, h6").evaluateAll((hs) => hs.map((h) => Number(h.tagName[1])));
+    expect(levels[0]).toBe(1);
+    for (let i = 1; i < levels.length; i++) expect(levels[i]! - levels[i - 1]!).toBeLessThanOrEqual(1);
+  });
+
+  test("footer: verified contact routes only, and the concept notice", async ({ page }) => {
+    await open(page);
+    const footer = page.getByRole("contentinfo");
+    await expect(footer.getByText("A Little Cake")).toBeVisible();
+    await expect(footer.getByRole("link", { name: "WhatsApp +91 90289 02800" })).toHaveAttribute("href", "https://wa.me/919028902800");
+    await expect(footer.getByRole("link", { name: "Instagram @bakers24pcmc" })).toHaveAttribute("href", "https://www.instagram.com/bakers24pcmc/");
+    await expect(footer.locator("address")).toContainText("Sadhu Vaswani Rd");
+    await expect(footer).toContainText("Concept demonstration — products, prices and availability subject to confirmation.");
+    // Unconfirmed in CONTENT.md: never shown.
+    await expect(footer).not.toContainText(/hours|10:30|gmail|same-day|delivery/i);
+  });
+
+  test("adds no JavaScript to the page", async ({ page }) => {
+    await open(page);
+    expect(await page.locator("script").count()).toBe(0);
+  });
+
+  test("collection doors and footer links meet the 44×44px tap target", async ({ page }) => {
+    await open(page);
+    const targets = [page.getByRole("link", { name: "Explore Collection" }), ...DOORS.map((d) => page.getByRole("link", { name: d.name }))];
+    targets.push(...(await page.getByRole("contentinfo").getByRole("link").all()));
+    for (const l of targets) {
+      const b = await box(l);
+      const name = (await l.textContent())?.trim() ?? "";
+      expect(b.height, name).toBeGreaterThanOrEqual(44);
+      expect(b.width, name).toBeGreaterThanOrEqual(44);
+    }
+  });
+
+  test("text keeps AA contrast on the ivory, the doors and the footer", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await open(page);
+    const checks = [
+      { selector: ".collections .t-eyebrow", min: 4.5, what: "ivory eyebrow" },
+      { selector: ".collections__title", min: 4.5, what: "ivory heading" },
+      { selector: ".collections__lead", min: 4.5, what: "ivory description" },
+      { selector: ".collections__cta", min: 4.5, what: "Explore Collection label" },
+      // Door titles are 28px: large text (3:1).
+      { selector: ".door--birthday .door__title", min: 3, what: "Birthday Cakes title" },
+      { selector: ".door--custom .door__title", min: 3, what: "Custom Cakes title" },
+      { selector: ".door--seasonal .door__title", min: 3, what: "Seasonal Delights title" },
+      { selector: ".door--birthday .door__label", min: 4.5, what: "temporary-image label" },
+      { selector: ".site-footer__motto", min: 4.5, what: "footer motto" },
+      { selector: ".site-footer__address", min: 4.5, what: "footer address" },
+      { selector: ".site-footer__link", min: 4.5, what: "footer link" },
+      { selector: ".site-footer__notice", min: 4.5, what: "concept notice" },
+    ];
+    for (const c of checks) {
+      const ratio = await backgroundContrast(page, c.selector);
+      test.info().annotations.push({ type: "contrast", description: `${c.what}: ${ratio.toFixed(2)}:1 (needs ${c.min}:1)` });
+      expect(ratio, `${c.what}: ${ratio.toFixed(2)}:1`).toBeGreaterThanOrEqual(c.min);
+    }
+  });
+
+  for (const size of SIZES) {
+    test(`M2 layout holds at ${size.width}×${size.height}`, async ({ page }) => {
+      await page.setViewportSize(size);
+      await open(page);
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+      expect(overflow, "horizontal scroll").toBeLessThanOrEqual(0);
+      expect(await textOutsideViewport(page)).toEqual([]);
+
+      // The ivory section starts exactly where the first screen ends, under the cake.
+      const screen = await box(page.locator(".home-stage__screen"));
+      const section = await box(page.locator(".collections"));
+      expect(Math.abs(section.y - (screen.y + screen.height)), "section meets the bottom of the first screen").toBeLessThanOrEqual(1);
+      expect(section.y, "first screen still fills the viewport").toBeGreaterThanOrEqual(size.height - 1);
+
+      // Doors stack in one column, never overlapping, and alternate sides.
+      const doors = await Promise.all([0, 1, 2].map((i) => box(page.locator(".door").nth(i))));
+      for (let i = 1; i < doors.length; i++) expect(doors[i]!.y).toBeGreaterThanOrEqual(doors[i - 1]!.y + doors[i - 1]!.height);
+      expect(doors[1]!.x + doors[1]!.width).toBeGreaterThan(doors[0]!.x + doors[0]!.width);
+      for (const d of doors) expect(d.height / d.width, "tall portrait tiles").toBeGreaterThanOrEqual(1.2);
+    });
+  }
+
+  for (const width of [320, 390]) {
+    test(`M2 text reflows without clipping at 200% text size (${width}px)`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 844 });
+      await open(page);
+      await page.addStyleTag({ content: "html { font-size: 200% !important; }" });
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+      expect(overflow).toBeLessThanOrEqual(0);
+      expect(await textOutsideViewport(page)).toEqual([]);
+      // Titles stay inside their tiles.
+      for (const d of await page.locator(".door").all()) {
+        const tile = await box(d.locator(".door__frame"));
+        const title = await box(d.locator(".door__title"));
+        expect(title.x + title.width).toBeLessThanOrEqual(tile.x + tile.width);
+        expect(title.y + title.height).toBeLessThanOrEqual(tile.y + tile.height);
+      }
+    });
+  }
+
+  test("M2 adds no motion when reduced motion is requested", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await open(page);
+    for (const sel of [".door__img", ".door__arrow"]) {
+      const durations = await page.locator(sel).first().evaluate((n) => getComputedStyle(n).transitionDuration);
+      for (const d of durations.split(",")) expect(parseFloat(d)).toBeLessThan(0.02);
+    }
+    const animated = await page.locator(".collections *, .site-footer *").evaluateAll((els) => els.filter((e) => getComputedStyle(e).animationName !== "none").length);
+    expect(animated).toBe(0);
   });
 });

@@ -1,17 +1,20 @@
 ---
-// Homepage. M1 delivers the mobile first screen only; further sections arrive in M2.
+// Homepage. Mobile first screen (M1), then the ivory collections interlude and footer (M2).
+// The desktop composition is M5.
 
 import BaseLayout from "../layouts/BaseLayout.astro";
 import SiteHeader from "../components/layout/SiteHeader.astro";
 import HomeStage from "../components/home/HomeStage.astro";
 import HomeHero from "../components/home/HomeHero.astro";
+import HomeCollections from "../components/home/HomeCollections.astro";
+import SiteFooter from "../components/layout/SiteFooter.astro";
 ---
 
 <BaseLayout title="Baker’s 24 · Pure Veg Cake Shop, Pimpri (concept proposal)" noindex>
   <HomeStage>
-    <SiteHeader currentPath="/" />
-    <main id="main">
-      <HomeHero />
-    </main>
+    <SiteHeader slot="header" currentPath="/" />
+    <HomeHero />
+    <HomeCollections slot="after" />
   </HomeStage>
+  <SiteFooter />
 </BaseLayout>

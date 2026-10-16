@@ -1,6 +1,6 @@
 ---
 // Homepage hero copy, cake and ivory curve (M1). Sits inside HomeStage, which supplies the
-// atmosphere and --hero-h; the cake and curve are positioned against the stage.
+// atmosphere and --hero-h; the cake and curve are positioned against the stage's screen box.
 //
 // Measurements (reference at 390px wide, below the 47px status bar; content height 770px):
 //   headline cap-top 30.1% · button bottom 69.2% · cake 191–390 × 522–770 · curve from 84.5%
@@ -53,7 +53,7 @@ const cake = images.heroCake;
 </section>
 
 <style>
-  /* Static on purpose: the cake and curve position against HomeStage. */
+  /* Static on purpose: the cake and curve position against HomeStage's screen box. */
   .hero {
     display: block;
   }

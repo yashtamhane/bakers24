@@ -14,9 +14,7 @@ import bodoniModaLatin from "@fontsource-variable/bodoni-moda/files/bodoni-moda-
 <BaseLayout title="Hero headline: Bodoni Moda (internal comparison)" noindex>
   <link slot="head" rel="preload" href={bodoniModaLatin} as="font" type="font/woff2" crossorigin />
   <HomeStage>
-    <SiteHeader currentPath="/" />
-    <main id="main">
-      <HomeHero headlineFont="bodoni-moda" />
-    </main>
+    <SiteHeader slot="header" currentPath="/" />
+    <HomeHero headlineFont="bodoni-moda" />
   </HomeStage>
 </BaseLayout>

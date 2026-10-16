@@ -1,0 +1,196 @@
+---
+// Homepage ivory interlude (M2), adapted for mobile from the approved reference's
+// “For Every Beautiful Moment” section: eyebrow, serif heading, one sentence, an outline
+// call to action, then the three collection doors stacked in an alternating editorial column.
+//
+// Transitions: the top edge continues the hero's ivory curve, which meets the bottom of the
+// first screen at 28.2% of the width; from there the dark ground sweeps down under the cake and
+// off the right edge. The bottom edge waves into the footer.
+
+import Button from "../ui/Button.astro";
+import CollectionDoor from "./CollectionDoor.astro";
+import { homeCollections } from "../../data/home-collections";
+---
+
+<section class="collections" data-surface="ivory" aria-labelledby="collections-title">
+  <!-- Door silhouettes: soft, slightly different organic tops, as in the reference tiles. -->
+  <svg class="collections__defs" width="0" height="0" aria-hidden="true" focusable="false">
+    <clipPath id="door-shape-birthday" clipPathUnits="objectBoundingBox">
+      <path d="M0 .13C0 .06.05.025.12.02.38.003.62.003.88.02.95.025 1 .06 1 .13V.92C1 .965.96 1 .9 1H.1C.04 1 0 .965 0 .92Z" />
+    </clipPath>
+    <clipPath id="door-shape-custom" clipPathUnits="objectBoundingBox">
+      <path d="M0 .1C0 .05.04.028.1.033.36.058.6 0 .88.004.95.005 1 .035 1 .095V.93C1 .97.96 1 .9 1H.1C.04 1 0 .97 0 .93Z" />
+    </clipPath>
+    <clipPath id="door-shape-seasonal" clipPathUnits="objectBoundingBox">
+      <path d="M0 .2C0 .075.2 0 .5 0S1 .075 1 .2V.92C1 .965.96 1 .9 1H.1C.04 1 0 .965 0 .92Z" />
+    </clipPath>
+  </svg>
+
+  <!-- Dark ground continuing the hero curve. Drawn in vw on both axes, so it never distorts. -->
+  <svg class="collections__lip" viewBox="0 0 100 16" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+    <defs>
+      <linearGradient id="collections-lip" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#2d190e" />
+        <stop offset="0.5" stop-color="#3a1c10" />
+        <stop offset="1" stop-color="#46220f" />
+      </linearGradient>
+    </defs>
+    <path d="M28.2 0C46 4.2 66 6.6 82 10.2 90 12 96 14 100 16V0Z" fill="url(#collections-lip)" />
+  </svg>
+
+  <!-- Restrained ornament: one fine champagne arc and one out-of-focus petal. -->
+  <div class="collections__decor" aria-hidden="true">
+    <svg class="collections__arc" viewBox="0 0 120 420" focusable="false">
+      <path d="M118 2C40 70 8 170 22 268c10 70 46 122 96 150" fill="none" stroke="currentColor" stroke-width="1" />
+    </svg>
+    <svg class="collections__petal" viewBox="0 0 60 44" focusable="false">
+      <defs>
+        <filter id="collections-petal-blur" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="1.4" /></filter>
+        <linearGradient id="collections-petal-fill" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#ee8aa0" />
+          <stop offset="1" stop-color="#b42a4c" />
+        </linearGradient>
+      </defs>
+      <path d="M4 30C10 10 34 0 56 6 48 26 28 42 4 30Z" fill="url(#collections-petal-fill)" filter="url(#collections-petal-blur)" />
+    </svg>
+  </div>
+
+  <div class="collections__inner">
+    <div class="collections__intro">
+      <p class="t-eyebrow">Our Cakes</p>
+      <h2 id="collections-title" class="collections__title">
+        <span class="collections__line">For Every</span>
+        <span class="collections__line">Beautiful</span>
+        <span class="collections__line">Moment</span>
+      </h2>
+      <p class="t-lead collections__lead">
+        From birthdays to anniversaries, custom creations to seasonal delights, find a cake that feels just right.
+      </p>
+      <Button href="/cakes/" variant="outline-ivory" icon="arrow-right" class="collections__cta">Explore Collection</Button>
+    </div>
+
+    <ul class="collections__doors" role="list" aria-label="Collections">
+      {homeCollections.map((collection) => <CollectionDoor collection={collection} />)}
+    </ul>
+  </div>
+
+  <!-- Wave into the footer. -->
+  <svg class="collections__wave" viewBox="0 0 100 12" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+    <path d="M0 7.5C18 2 40 .5 60 3.6 78 6.4 90 9 100 5.2V12H0Z" />
+  </svg>
+</section>
+
+<style>
+  .collections {
+    --lip-h: 16vw;
+    --wave-h: 12vw;
+
+    position: relative;
+    isolation: isolate;
+    overflow: clip;
+    background:
+      radial-gradient(70% 28% at 100% 46%, rgb(232 196 179 / 0.45), transparent 70%),
+      radial-gradient(60% 22% at 0% 78%, rgb(232 196 179 / 0.35), transparent 70%),
+      var(--color-surface-ivory);
+    color: var(--color-text-on-ivory);
+    color-scheme: light;
+    padding-top: calc(var(--lip-h) + var(--space-6));
+    padding-bottom: calc(var(--wave-h) + var(--space-16));
+  }
+
+  .collections__defs {
+    position: absolute;
+  }
+
+  .collections__lip,
+  .collections__wave {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    pointer-events: none;
+  }
+
+  .collections__lip {
+    top: 0;
+    height: var(--lip-h);
+  }
+
+  .collections__wave {
+    bottom: -1px; /* no hairline seam against the footer */
+    height: var(--wave-h);
+    fill: var(--color-bg);
+  }
+
+  .collections__decor {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  .collections__arc {
+    position: absolute;
+    top: 38%;
+    right: -2px;
+    width: 26vw;
+    height: auto;
+    color: var(--palette-champagne-300);
+    opacity: 0.55;
+  }
+
+  .collections__petal {
+    position: absolute;
+    top: calc(var(--lip-h) + 1.5rem);
+    right: 9vw;
+    width: 12vw;
+    height: auto;
+    opacity: 0.85;
+    transform: rotate(-14deg);
+  }
+
+  .collections__inner {
+    width: 100%;
+    max-width: var(--container-max);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+
+  .collections__intro {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .collections__title {
+    margin-top: var(--space-3);
+    /* Reference heading is set close to the hero size; scaled for a 390px column. */
+    font-size: clamp(2.25rem, 10.5vw, 2.75rem);
+    line-height: 1.02;
+    color: var(--color-text-on-ivory);
+    /* A flex item sizes to its longest word; cap it so 200% text wraps instead of overflowing. */
+    max-width: 100%;
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
+
+  /* Three lines, as in the reference. */
+  .collections__line {
+    display: block;
+  }
+
+  .collections__lead {
+    margin-top: var(--space-5);
+    max-width: 22em;
+  }
+
+  .collections__intro :global(.collections__cta) {
+    margin-top: var(--space-6);
+  }
+
+  .collections__doors {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+    margin-top: var(--space-12);
+  }
+</style>
