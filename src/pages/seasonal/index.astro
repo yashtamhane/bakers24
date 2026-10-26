@@ -1,0 +1,31 @@
+---
+// /seasonal/ — the eight past seasonal records (M3 Stage 7), in CATALOG.json order.
+// An informational showcase of items offered in the past: each record is a non-linked CakeCard
+// (there are no seasonal detail pages) with its past reference price, plus the supplied size
+// note where one exists (Mango Cake: “half kg”). The two “Half Rose Mango Cake” records stay
+// separate, each with its own price and the approved note about the unconfirmed difference.
+// Text-only and static: no images, no client-side JavaScript. Wording comes from notices.ts.
+
+import CollectionPage from "../../components/catalog/CollectionPage.astro";
+import CakeCard from "../../components/catalog/CakeCard.astro";
+import { seasonalExamples } from "../../data/catalog";
+import { duplicateSeasonalNameNote, duplicateSeasonalNames, seasonalNotice } from "../../data/notices";
+
+const duplicates = duplicateSeasonalNames(seasonalExamples);
+---
+
+<CollectionPage
+  title="Seasonal Delights · Baker’s 24 (concept proposal)"
+  description="Seasonal items Baker’s 24 offered in the past, with their past reference prices. Concept proposal: not currently available unless the shop confirms otherwise."
+  heading="Seasonal Delights"
+  notice={seasonalNotice}
+  listLabel="Past seasonal items"
+>
+  {
+    seasonalExamples.map((record) => (
+      <li>
+        <CakeCard kind="seasonal" record={record} note={duplicates.has(record.name) ? duplicateSeasonalNameNote : undefined} />
+      </li>
+    ))
+  }
+</CollectionPage>

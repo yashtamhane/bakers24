@@ -1,0 +1,102 @@
+---
+// Compact header for inner pages (catalog, cake detail, custom cakes, seasonal), following the
+// reference's catalog screens: Back (left), identity (centre), search (right).
+//   - Back is a real link to an explicit parent page, never browser history.
+//   - The logo is the shared Logo component, shown compactly; it links home.
+//   - Search keeps the homepage's semantics: present, but announced as unavailable
+//     (aria-disabled), because search is not part of the site yet. There is no menu button.
+// In normal flow (not fixed or sticky), so enlarged text grows the header instead of covering
+// the page. The page's <h1> belongs in <main>, below this header.
+//
+// When text is enlarged the wordmark cannot fit between the two icon buttons, so below a 16rem
+// header width (never reached at normal text size: 16rem is 256px) Back and Search share the
+// top row and the logo moves to its own centred row instead of spilling over their tap areas.
+
+import Logo from "../brand/Logo.astro";
+import IconButton from "../ui/IconButton.astro";
+
+interface Props {
+  /** Parent page, e.g. "/" or "/cakes/". */
+  backHref: string;
+  /** Accessible name of the Back link, e.g. "Back to home" or "Back to all cakes". */
+  backLabel: string;
+}
+
+const { backHref, backLabel } = Astro.props;
+---
+
+<header class="page-header">
+  <div class="page-header__inner">
+    <IconButton icon="arrow-left" label={backLabel} href={backHref} iconSize={26} class="page-header__back" />
+    <Logo class="page-header__logo" />
+    <IconButton icon="search" label="Search cakes" unavailable iconSize={26} class="page-header__search" />
+  </div>
+</header>
+
+<style>
+  /* One-cell grid with the original min-height (border included), so the inner row stretches
+     to the same 72px it had before the enlarged-text layout was added. */
+  .page-header {
+    container-type: inline-size;
+    display: grid;
+    min-height: calc(4.5rem + env(safe-area-inset-top, 0px));
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-inline: max(var(--gutter-header, 1.25rem), env(safe-area-inset-left, 0px));
+    border-bottom: 1px solid var(--color-hairline);
+    color: var(--color-text);
+  }
+
+  .page-header__inner {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas: "back logo search";
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .page-header :global(.page-header__back) {
+    grid-area: back;
+  }
+
+  .page-header :global(.page-header__logo) {
+    grid-area: logo;
+    justify-self: center;
+    max-width: 100%;
+    padding-block: var(--space-2);
+  }
+
+  /* Compact lockup: smaller mark and wordmark, no tagline (it is part of the homepage header). */
+  .page-header :global(.page-header__logo .logo__mark) {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  .page-header :global(.page-header__logo .logo__word) {
+    margin-top: 0.25rem;
+    font-size: 1.25rem;
+  }
+
+  .page-header :global(.page-header__logo .logo__tag) {
+    display: none;
+  }
+
+  .page-header :global(.page-header__search) {
+    grid-area: search;
+    justify-self: end;
+  }
+
+  /* Enlarged text: the logo gets its own row below Back and Search. Last, so it overrides the
+     base logo padding above (container queries add no specificity). */
+  @container (max-width: 16rem) {
+    .page-header__inner {
+      grid-template-areas:
+        "back . search"
+        "logo logo logo";
+      row-gap: 0;
+    }
+
+    .page-header :global(.page-header__logo) {
+      padding-top: 0;
+    }
+  }
+</style>

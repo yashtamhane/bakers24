@@ -51,4 +51,22 @@ export const contrastPairs: readonly ContrastPair[] = [
   // Rose-gold is 2.90:1 on the card surface, so controls inside cards use a cream ring.
   { use: "Focus ring on card", fg: "--color-focus-on-card", bg: "--color-surface-card", level: "non-text" },
   { use: "Focus ring on ivory", fg: "--color-focus-on-ivory", bg: "--color-surface-ivory", level: "non-text" },
+
+  // M3 catalog pages: espresso-900 page background (--color-bg-raised, the reference menu backdrop)
+  { use: "Catalog title and contact label on catalog background", fg: "--color-text", bg: "--color-bg-raised", level: "text" },
+  { use: "Catalog notice and phone number (sand) on catalog background", fg: "--color-text-soft", bg: "--color-bg-raised", level: "text" },
+  { use: "Catalog eyebrow on catalog background", fg: "--color-text-eyebrow", bg: "--color-bg-raised", level: "text" },
+  { use: "Catalog chip label on catalog background", fg: "--color-chip-text", bg: "--color-chip-bg", over: "--color-bg-raised", level: "text" },
+  // Chip borders are 2.82:1 on cocoa, so catalog pages use the espresso-900 background instead.
+  { use: "Catalog chip border on catalog background", fg: "--color-chip-border", bg: "--color-bg-raised", level: "non-text" },
+  { use: "Catalog active chip vs catalog background", fg: "--color-chip-active-bg", bg: "--color-bg-raised", level: "non-text" },
+  { use: "WhatsApp outline link edge on catalog background", fg: "--color-accent", bg: "--color-bg-raised", level: "non-text" },
+  { use: "Focus ring on catalog background", fg: "--color-focus", bg: "--color-bg-raised", level: "non-text" },
+  // Linked cake cards draw their ring outside the card, on the catalog background.
+  { use: "Cake card focus ring (cream) on catalog background", fg: "--color-focus-on-card", bg: "--color-bg-raised", level: "non-text" },
+
+  // M3 cake cards: clay surface. Every card text is cream; sand and taupe fail AA here.
+  { use: "Cake card name, price and price qualifier on clay card", fg: "--color-text", bg: "--color-surface-card", level: "text" },
+  { use: "“Photograph to come” (sand) on text-only panel", fg: "--color-text-soft", bg: "--color-surface-cocoa-deep", level: "text" },
+  { use: "“Illustrative image” label on its espresso pill", fg: "--color-text", bg: "--color-bg", level: "text" },
 ];

@@ -1,0 +1,36 @@
+---
+// The list of regular cakes on /cakes/: one linked CakeCard per product, in catalog order.
+// Purely static (no client-side script), so the full list works without JavaScript.
+// Every entry comes from src/data/products.ts; names and prices are read from the catalog
+// inside CakeCard, so nothing about a cake is restated here.
+
+import CakeCard from "./CakeCard.astro";
+import type { ProductEntry } from "../../data/products";
+
+interface Props {
+  products: readonly ProductEntry[];
+  /** Accessible name for the list, e.g. "All cakes". */
+  label: string;
+  class?: string;
+}
+
+const { products, label, class: className } = Astro.props;
+---
+
+<ul class:list={["cake-list", className]} role="list" aria-label={label}>
+  {
+    products.map((product, index) => (
+      <li class="cake-list__item" id={`cake-item-${product.slug}`}>
+        <CakeCard kind="regular" product={product} eager={index === 0} />
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .cake-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3); /* 12px between cards */
+  }
+</style>

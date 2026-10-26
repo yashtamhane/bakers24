@@ -1,0 +1,91 @@
+---
+// Page shell for the two showcase collections, /custom-cakes/ and /seasonal/ (M3 Stage 7):
+// inner-page header (Back to home), intro with the approved notice, the plain WhatsApp link,
+// a list of non-linked cards (passed in as <li> elements), and the footer. Static, no script.
+//
+// Enlarged text in a narrow column (under 16rem; 17.5rem at 320px with normal text) gets the
+// same page-scoped adjustments as the cake pages (Stage 5), so no word breaks mid-word:
+//   - the title is capped at 17% of the column width (40.8px at 320px with 200% text);
+//   - the contact label may wrap below its icon, on a rounded rectangle with tighter padding;
+//   - card names are capped at 15% of the card width, measured against each card's own size
+//     container (36px at 320px with 200% text), so “Anniversary” and “Cheesecake” stay whole.
+
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PageHeader from "../layout/PageHeader.astro";
+import SiteFooter from "../layout/SiteFooter.astro";
+import CatalogIntro from "./CatalogIntro.astro";
+import ContactLink from "./ContactLink.astro";
+
+interface Props {
+  /** Document title. */
+  title: string;
+  description: string;
+  /** The page's <h1>. */
+  heading: string;
+  /** Approved notice for this collection (from notices.ts). */
+  notice: string;
+  /** Accessible name of the list of records. */
+  listLabel: string;
+}
+
+const { title, description, heading, notice, listLabel } = Astro.props;
+---
+
+<BaseLayout title={title} description={description} noindex>
+  <div class="collection-page">
+    <PageHeader backHref="/" backLabel="Back to home" />
+    <main id="main" class="collection-page__main">
+      <CatalogIntro eyebrow="Pure veg · Pimpri" title={heading} notice={notice} />
+      <ContactLink class="collection-page__contact" />
+      <ul class="collection-page__list" role="list" aria-label={listLabel}>
+        <slot />
+      </ul>
+    </main>
+  </div>
+  <SiteFooter />
+</BaseLayout>
+
+<style>
+  /* Same espresso-900 ground and centred column as /cakes/. */
+  .collection-page {
+    background: var(--color-bg-raised);
+    color: var(--color-text);
+  }
+
+  .collection-page__main {
+    container-type: inline-size;
+    width: 100%;
+    max-width: calc(44rem + 2 * var(--gutter));
+    margin-inline: auto;
+    padding: var(--space-6) var(--gutter) var(--space-16);
+  }
+
+  .collection-page__main :global(.collection-page__contact) {
+    margin-top: var(--space-5);
+  }
+
+  .collection-page__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    margin-top: var(--space-6);
+  }
+
+  @container (max-width: 16rem) {
+    .collection-page__main :global(.catalog-intro__title) {
+      font-size: min(1.5rem, 17cqi);
+    }
+
+    .collection-page__main :global(.collection-page__contact) {
+      flex-wrap: wrap;
+      gap: var(--space-2) var(--space-3);
+      padding: var(--space-3) var(--space-4);
+      border-radius: var(--radius-lg);
+    }
+
+    /* Resolved against each card's own size container (CakeCard is one). */
+    .collection-page__main :global(.cake-card__name) {
+      font-size: min(1.25rem, 15cqi);
+    }
+  }
+</style>

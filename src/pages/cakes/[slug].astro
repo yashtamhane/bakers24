@@ -1,0 +1,209 @@
+---
+// /cakes/<slug>/ — one static page per regular cake (M3 Stage 5), generated at build time from
+// src/data/products.ts: exactly the 23 catalog cakes, nothing else. No client-side JavaScript.
+// Shows only supplied facts: the catalog name, the historical reference price and its 0.5 kg
+// qualifier, plus the approved notices and the plain WhatsApp contact link. No descriptions,
+// availability, offers or ordering.
+
+import type { GetStaticPaths } from "astro";
+import { Image } from "astro:assets";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PageHeader from "../../components/layout/PageHeader.astro";
+import SiteFooter from "../../components/layout/SiteFooter.astro";
+import PriceNote from "../../components/catalog/PriceNote.astro";
+import ContactLink from "../../components/catalog/ContactLink.astro";
+import { productCake, productImage, products, type ProductEntry } from "../../data/products";
+import { illustrativeImageNotice, photographPending, regularCakeNotice } from "../../data/notices";
+
+export const getStaticPaths = (() => products.map((product) => ({ params: { slug: product.slug }, props: { product } }))) satisfies GetStaticPaths;
+
+interface Props {
+  product: ProductEntry;
+}
+
+const { product } = Astro.props;
+const cake = productCake(product);
+const image = productImage(product);
+// "Hazelnut/Nutella" has no break opportunity at the slash; <wbr> adds one without changing the text.
+const titleParts = cake.name.split("/");
+---
+
+<BaseLayout title={`${cake.name} · Baker’s 24 (concept proposal)`} noindex>
+  <div class="detail-page">
+    <PageHeader backHref="/cakes/" backLabel="Back to all cakes" />
+    <main id="main" class="detail-page__main">
+      <h1 class="t-title detail-page__title">{titleParts.map((part, i) => (i > 0 ? <Fragment>/<wbr />{part}</Fragment> : part))}</h1>
+
+      {
+        image ? (
+          <figure class="detail-page__media" data-image-kind={image.kind}>
+            <Image
+              src={image.src}
+              alt={image.alt}
+              widths={[image.src.width]}
+              sizes="16rem"
+              loading="eager"
+              decoding="async"
+              class="detail-page__img"
+            />
+            <figcaption class="detail-page__label">{image.label}</figcaption>
+          </figure>
+        ) : (
+          <div class="detail-page__media detail-page__media--pending">
+            <svg class="detail-page__mark" viewBox="0 0 40 40" width="40" height="40" aria-hidden="true" focusable="false">
+              <path d="M20 1.5c3.6 5 4.6 10.4 0 16.3-4.6-5.9-3.6-11.3 0-16.3Z" />
+              <path d="M20 38.5c-3.6-5-4.6-10.4 0-16.3 4.6 5.9 3.6 11.3 0 16.3Z" />
+              <path d="M1.5 20c5-3.6 10.4-4.6 16.3 0-5.9 4.6-11.3 3.6-16.3 0Z" />
+              <path d="M38.5 20c-5 3.6-10.4 4.6-16.3 0 5.9-4.6 11.3-3.6 16.3 0Z" />
+              <path d="m20 17.2 2.8 2.8-2.8 2.8-2.8-2.8Z" />
+            </svg>
+            <span class="detail-page__pending">{photographPending}</span>
+          </div>
+        )
+      }
+
+      <div class="detail-page__price">
+        <PriceNote kind="regular" record={cake} />
+      </div>
+
+      <p class="detail-page__notice">{regularCakeNotice}</p>
+      {image && <p class="detail-page__notice">{illustrativeImageNotice}</p>}
+
+      <ContactLink class="detail-page__contact" />
+    </main>
+  </div>
+  <SiteFooter />
+</BaseLayout>
+
+<style>
+  /* Same espresso-900 ground as /cakes/. */
+  .detail-page {
+    background: var(--color-bg-raised);
+    color: var(--color-text);
+  }
+
+  /* Single centred column, narrower than the catalog list: one cake, read top to bottom. */
+  .detail-page__main {
+    container-type: inline-size;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    max-width: calc(32rem + 2 * var(--gutter));
+    margin-inline: auto;
+    padding: var(--space-8) var(--gutter) var(--space-16);
+  }
+
+  .detail-page__title {
+    max-width: 100%;
+    overflow-wrap: break-word;
+    hyphens: manual;
+  }
+
+  /* Image or text-only panel: centred, never wider than 16rem (approved B2). */
+  .detail-page__media {
+    position: relative;
+    align-self: center;
+    width: min(100%, 16rem);
+    margin: var(--space-6) 0 0;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+  }
+
+  .detail-page :global(.detail-page__img) {
+    display: block;
+    width: 100%;
+    height: auto; /* the image's own aspect ratio, from its width/height attributes */
+  }
+
+  .detail-page__label {
+    position: absolute;
+    left: var(--space-2);
+    bottom: var(--space-2);
+    max-width: calc(100% - 1rem);
+    padding: 0.125rem 0.5rem;
+    border-radius: var(--radius-pill);
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-size: 0.6875rem;
+    font-weight: var(--weight-ui);
+    line-height: 1.35;
+    letter-spacing: 0.02em;
+  }
+
+  .detail-page__media--pending {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    aspect-ratio: 6 / 5;
+    padding: var(--space-4);
+    background: var(--color-surface-cocoa-deep);
+    text-align: center;
+  }
+
+  .detail-page__mark {
+    flex: none;
+    fill: var(--palette-champagne-300);
+  }
+
+  .detail-page__pending {
+    font-size: var(--text-small);
+    line-height: 1.35;
+    color: var(--color-text-soft);
+  }
+
+  /* Price on the clay card surface, as on the catalog cards; larger here. */
+  .detail-page__price {
+    width: 100%;
+    margin-top: var(--space-6);
+    padding: var(--space-4); /* 1rem sides: room for a 4-digit price at 200% text on 320px */
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface-card);
+    box-shadow: var(--shadow-card);
+    color: var(--color-text);
+  }
+
+  .detail-page__price :global(.price-note__price) {
+    font-size: 2rem;
+  }
+
+  .detail-page__notice {
+    max-width: var(--measure);
+    margin-top: var(--space-4);
+    font-size: var(--text-small);
+    line-height: 1.5;
+    color: var(--color-text-soft);
+  }
+
+  .detail-page__notice + .detail-page__notice {
+    margin-top: var(--space-2);
+  }
+
+  .detail-page :global(.detail-page__contact) {
+    margin-top: var(--space-6);
+  }
+
+  /* Enlarged text (a column under 16rem; 17.5rem at 320px with normal text): the display title
+     and the pill's padding and side-by-side icon leave too little room, so words break
+     mid-word. Here the title is smaller, and the contact label may wrap below the icon, on a
+     rounded rectangle with tighter padding. */
+  @container (max-width: 16rem) {
+    /* 1.5rem (48px at 200% text; normal title 34px), capped at 17% of the column width so the
+       widest word, "Butterscotch" (5.72em), stays whole in the narrowest columns: 40.8px at
+       320px, easing back to 48px by about 362px. */
+    .detail-page__title {
+      font-size: min(1.5rem, 17cqi);
+    }
+
+    .detail-page :global(.detail-page__contact) {
+      flex-wrap: wrap;
+      gap: var(--space-2) var(--space-3);
+      padding: var(--space-3) var(--space-4);
+      border-radius: var(--radius-lg);
+    }
+  }
+</style>

@@ -1,0 +1,80 @@
+---
+// /cakes/ — the catalog of the 23 regular cakes (M3 Stage 4), each linking to /cakes/<slug>/.
+// Stage 6 adds search and category filtering over the same cards (CatalogFilter). The list is
+// complete in the HTML; without JavaScript the filter controls are hidden and all 23 cards show.
+// Prices are historical reference values; the notices come from src/data/notices.ts.
+
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PageHeader from "../../components/layout/PageHeader.astro";
+import SiteFooter from "../../components/layout/SiteFooter.astro";
+import CatalogIntro from "../../components/catalog/CatalogIntro.astro";
+import CakeList from "../../components/catalog/CakeList.astro";
+import CatalogFilter from "../../components/catalog/CatalogFilter.astro";
+import { products } from "../../data/products";
+import { regularCakeNotice } from "../../data/notices";
+---
+
+<BaseLayout title="Our Cakes · Baker’s 24 (concept proposal)" noindex>
+  <noscript slot="head"><style is:inline>.catalog-filter{display:none!important}</style></noscript>
+  <div class="catalog-page">
+    <PageHeader backHref="/" backLabel="Back to home" />
+    <main id="main" class="catalog-page__main">
+      <CatalogIntro eyebrow="Pure veg · Pimpri" title="Our Cakes" notice={regularCakeNotice} imageNotice titleId="catalog-title" />
+      <div class="catalog-page__filter">
+        <CatalogFilter products={products} list=".catalog-page__list" />
+      </div>
+      <CakeList products={products} label="All cakes" class="catalog-page__list" />
+    </main>
+  </div>
+  <SiteFooter />
+</BaseLayout>
+
+<style>
+  /* Espresso-900: the reference menu backdrop. The chip border reaches 3:1 here, not on cocoa. */
+  .catalog-page {
+    background: var(--color-bg-raised);
+    color: var(--color-text);
+  }
+
+  /* Single centred column: mobile gutters, at most 44rem wide on larger screens. */
+  .catalog-page__main {
+    width: 100%;
+    max-width: calc(44rem + 2 * var(--gutter));
+    margin-inline: auto;
+    padding: var(--space-6) var(--gutter) var(--space-16);
+  }
+
+  .catalog-page__filter {
+    margin-top: var(--space-6);
+  }
+
+  .catalog-page__main :global(.catalog-page__list) {
+    margin-top: var(--space-6); /* about 24px between the filter and the list */
+  }
+
+  /* The filter hides the whole list when nothing matches (CakeList's display: flex would
+     otherwise override the hidden attribute). */
+  .catalog-page__main :global(.catalog-page__list[hidden]) {
+    display: none;
+  }
+
+  /* Enlarged text in a narrow card (under 16rem; 17.5rem at 320px with normal text): card names
+     are capped at 14% of the card's width (33.6px at 320px with 200% text), so “Butterscotch”
+     stays whole. Resolved against each card's own size container (CakeCard is one). */
+  @container (max-width: 16rem) {
+    .catalog-page__main :global(.cake-card__name) {
+      font-size: min(1.25rem, 14cqi);
+    }
+  }
+
+  /* Enlarged text in a narrow filter (CatalogFilter is a size container under 16rem; 17.5rem at
+     320px with normal text, so normal text is unaffected): the empty-state heading is capped at
+     12% of the filter's width (28.8px at 320px with 200% text), so “catalogue”, every category
+     name and an 8-letter search term stay whole at 320px, and a 9-letter term from 360px. Longer
+     search text still wraps (overflow-wrap in CatalogFilter) rather than overflowing. */
+  @container (max-width: 16rem) {
+    .catalog-page__main :global(.catalog-filter__empty-title) {
+      font-size: min(1.25rem, 12cqi);
+    }
+  }
+</style>

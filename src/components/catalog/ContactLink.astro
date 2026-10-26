@@ -1,0 +1,71 @@
+---
+// The plain WhatsApp contact link used on the catalog pages: opens a chat with Baker’s 24 and
+// nothing more. No pre-filled message, no ordering, no product details passed along.
+// Number and URL come from src/data/business.ts; the action wording from src/data/notices.ts.
+
+import Icon from "../ui/Icon.astro";
+import { business } from "../../data/business";
+import { whatsappLinkLabel } from "../../data/notices";
+
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+
+<a class:list={["contact-link", className]} href={business.whatsapp.href}>
+  <Icon name="whatsapp" size={22} class="contact-link__icon" />
+  <span class="contact-link__text">
+    <span class="contact-link__action">{whatsappLinkLabel}</span>
+    <span class="contact-link__number">{business.whatsapp.display}</span>
+  </span>
+</a>
+
+<style>
+  /* Outline pill, as the reference's “Order on WhatsApp”: rose-gold edge on the dark catalog
+     background, cream label. Wraps instead of overflowing when text is enlarged. */
+  .contact-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    max-width: 100%;
+    min-height: var(--tap-min);
+    padding: var(--space-2) var(--space-6) var(--space-2) var(--space-5);
+    border: 1px solid var(--color-accent);
+    border-radius: var(--radius-pill);
+    background: color-mix(in srgb, var(--palette-espresso-950) 35%, transparent);
+    color: var(--color-text);
+    text-decoration: none;
+    transition: background-color var(--duration-base) var(--ease-out);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .contact-link:hover {
+    background: color-mix(in srgb, var(--color-accent) 14%, transparent);
+  }
+
+  .contact-link :global(.contact-link__icon) {
+    color: var(--color-accent);
+  }
+
+  .contact-link__text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .contact-link__action {
+    font-size: var(--text-button);
+    font-weight: var(--weight-ui);
+    line-height: 1.25;
+    overflow-wrap: break-word;
+  }
+
+  .contact-link__number {
+    font-size: var(--text-small);
+    line-height: 1.35;
+    color: var(--color-text-soft);
+    font-variant-numeric: tabular-nums;
+  }
+</style>

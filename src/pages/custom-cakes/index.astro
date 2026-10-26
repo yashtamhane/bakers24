@@ -1,0 +1,28 @@
+---
+// /custom-cakes/ — the seven past custom-cake examples (M3 Stage 7), in CATALOG.json order.
+// An informational showcase: each example is a non-linked CakeCard (there are no custom detail
+// pages) with its reference quote and weight, or “size not recorded” where none was supplied.
+// Text-only: no photograph exists for these examples, and no other image stands in for one.
+// Static page, no client-side JavaScript. Wording comes from src/data/notices.ts.
+
+import CollectionPage from "../../components/catalog/CollectionPage.astro";
+import CakeCard from "../../components/catalog/CakeCard.astro";
+import { customExamples } from "../../data/catalog";
+import { customCakeNotice } from "../../data/notices";
+---
+
+<CollectionPage
+  title="Custom Cakes · Baker’s 24 (concept proposal)"
+  description="Past custom-cake examples from Baker’s 24 with their reference quotes. Concept proposal: prices and availability to be confirmed with the shop."
+  heading="Custom Cakes"
+  notice={customCakeNotice}
+  listLabel="Past custom-cake examples"
+>
+  {
+    customExamples.map((example) => (
+      <li>
+        <CakeCard kind="custom" record={example} />
+      </li>
+    ))
+  }
+</CollectionPage>

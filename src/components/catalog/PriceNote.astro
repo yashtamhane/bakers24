@@ -1,0 +1,47 @@
+---
+// Historical price with its approved qualifier. Every price on the catalog pages goes through
+// this component, so none can appear without saying what kind of price it is:
+//   regular    “₹380” + “Reference price · 0.5 kg”
+//   custom     “₹2,250” + “Reference quote · 1.5 kg” (or “· size not recorded”)
+//   seasonal   “₹550” + “Past reference price · half kg” (size note only where one was supplied)
+// Prices come from CATALOG.json and qualifiers from src/data/notices.ts; nothing is restated here.
+
+import { formatInr } from "../../lib/format";
+import { customQuoteNote, regularPriceNote, seasonalPriceNote } from "../../data/notices";
+import type { CustomExample, RegularCake, SeasonalExample } from "../../data/schema";
+
+type Props =
+  | { kind: "regular"; record: RegularCake; class?: string }
+  | { kind: "custom"; record: CustomExample; class?: string }
+  | { kind: "seasonal"; record: SeasonalExample; class?: string };
+
+const props = Astro.props;
+const qualifier =
+  props.kind === "regular"
+    ? regularPriceNote(props.record)
+    : props.kind === "custom"
+      ? customQuoteNote(props.record)
+      : seasonalPriceNote(props.record);
+---
+
+<p class:list={["price-note", props.class]}>
+  <span class="price-note__price t-price">{formatInr(props.record.reference_price_inr)}</span>
+  <span class="price-note__qualifier">{qualifier}</span>
+</p>
+
+<style>
+  .price-note {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    color: inherit;
+  }
+
+  .price-note__qualifier {
+    font-size: 0.8125rem;
+    font-weight: var(--weight-ui);
+    line-height: 1.35;
+    letter-spacing: 0.01em;
+    color: inherit; /* cream on the clay card (5.04:1); sand-coloured text fails there */
+  }
+</style>
